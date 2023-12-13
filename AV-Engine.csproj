@@ -1,0 +1,15 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <RootNamespace>AVXFramework</RootNamespace>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\blueprint-blue\Blueprint-Blue-Lib\Blueprint-Blue-Lib.csproj" />
+    <ProjectReference Include="..\NUPhone\PhonemeEmbeddings\PhonemeEmbeddings.csproj" />
+  </ItemGroup>
+
+</Project>
