@@ -7,6 +7,7 @@
 
     public class NativeLibrary
     {
+#if USE_NATIVE_LIBRARIES
         // AVX-Search:
         [DllImport("AVXSearch.dll", CharSet = CharSet.Ansi)]
         private static extern UInt64 query_create(UInt64 client_id_1, UInt64 client_id_2, string blueprint, UInt16 span, byte lexicon, byte similarity, byte fuzzy_lemmata);
@@ -88,10 +89,12 @@
 
         [DllImport("AVXSearch.dll")]
         internal static extern void free_avxtext(UInt64 data);
+#endif
     }
 
     public class NativeStatement
     {
+#if USE_NATIVE_LIBRARIES
         private UInt64 AVXTextData;
         private NativeLibrary External;
         private UInt64 Address;
@@ -163,5 +166,6 @@
         {
             this.Free();
         }
+#endif
     }
 }

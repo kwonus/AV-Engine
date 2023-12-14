@@ -1,25 +1,41 @@
-﻿using Blueprint.Blue;
-using System.Text;
-
-namespace AVXFramework
+﻿namespace AVXFramework
 {
+    using Blueprint.Blue;
+    using Pinshot.Blue;
+    using AVSearch;
+
     public class AVEngine
     {
-        private Blueprint.Blue.Blueprint BlueprintLib;
-        private Pinshot.Blue.PinshotLib PinshotLib;
+        private Blueprint QuelleModel;
+        private PinshotLib QuelleParser;
+        private readonly Guid ClientId;
         private const string SDK = "C:/src/AVX/omega/AVX-Omega-3911.data";
+
+#if USE_NATIVE_LIBRARIES
         private NativeStatement SearchEngine;
+#else
+        private AVQueryManager SearchEngine;
+#endif
 
         public AVEngine()
         {
-            this.BlueprintLib = new();
-            this.PinshotLib = new();
+            this.QuelleModel = new();
+            this.QuelleParser = new();
+            this.ClientId = Guid.NewGuid();
 
+#if USE_NATIVE_LIBRARIES
             this.SearchEngine = new NativeStatement(SDK);
-        }
-        public void Release()
+#else
+            this.SearchEngine = new();
+#endif        
+    }
+    public void Release()
         {
+#if USE_NATIVE_LIBRARIES
             this.SearchEngine.Release();
+#else
+            this.SearchEngine.ReleaseAll(this.ClientId);
+#endif
         }
         ~AVEngine()
         {
@@ -27,12 +43,12 @@ namespace AVXFramework
         }
         public (QStatement? stmt, string error, string result) Execute(string command)
         {
-            var pinshot = this.PinshotLib.Parse(command);
+            var pinshot = this.QuelleParser.Parse(command);
             if (pinshot.root != null)
             {
                 if (string.IsNullOrWhiteSpace(pinshot.root.error))
                 {
-                    var blueprint = this.BlueprintLib.Create(pinshot.root);
+                    var blueprint = this.QuelleModel.Create(pinshot.root);
 
                     if (blueprint != null)
                     {
@@ -80,20 +96,12 @@ namespace AVXFramework
                                     Console.WriteLine(json_pretty);
                                 }
 
-                                // CancellationToken++ code needs to be refactored with RapidJson (delete references to RapidYaml)
-                                UInt16 span = blueprint.LocalSettings.Span.Value;
-                                byte lexicon = (byte) (blueprint.LocalSettings.Lexicon.Value);
-                                byte similarity = blueprint.LocalSettings.Similarity.Value;
-                                bool fuzzyLemmata = blueprint.LocalSettings.Similarity.EnableLemmaMatching;
+                                QSettings qsettings = blueprint.LocalSettings;
+                                TSettings settings = new TSettings(in qsettings);
 
                                 List<(byte book, byte chapter, byte verse)> scope = new();
 
-                                if (this.SearchEngine.Search(json, span, lexicon, similarity, fuzzyLemmata, scope))
-                                {
-                                    return (blueprint, "", this.SearchEngine.Summary);
-                                }
-
-                                return (blueprint, "Search failed for unknown reason", "");
+                                TQuery query = this.SearchEngine.Create(in this.ClientId, in blueprint);
                             }
                             else
                             {

@@ -8,7 +8,9 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\AV-Search\AV-Search.csproj" />
     <ProjectReference Include="..\blueprint-blue\Blueprint-Blue-Lib\Blueprint-Blue-Lib.csproj" />
+    <ProjectReference Include="..\Digital-AV\omega\foundations\csharp\AVXLib\AVXLib.csproj" />
     <ProjectReference Include="..\NUPhone\PhonemeEmbeddings\PhonemeEmbeddings.csproj" />
   </ItemGroup>
 
