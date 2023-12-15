@@ -41,7 +41,7 @@
         {
             this.Release();
         }
-        public (QStatement? stmt, string error, string result) Execute(string command)
+        public (QStatement? stmt, TQuery? find, string error, string status) Execute(string command)
         {
             var pinshot = this.QuelleParser.Parse(command);
             if (pinshot.root != null)
@@ -57,13 +57,13 @@
                             if (blueprint.Singleton != null)
                             {
                                 ; // process singleton command
-                                return (blueprint, "", "Pretend that this is the result of an executed Quelle command");
+                                return (blueprint, null, "", "Pretend that this is the result of an executed Quelle command");
                             }
                             else if (blueprint.Commands != null)
                             {
-                                var expression = blueprint.Commands.Searches.ToList();
-                                string yaml = ICommand.YamlSerializerRaw(expression);
-                                string json = ICommand.JsonSerializerRaw(expression);
+                                var expressions = blueprint.Commands.Searches.ToList();
+                                string yaml = ICommand.YamlSerializerRaw(expressions);
+                                string json = ICommand.JsonSerializerRaw(expressions);
                                 
                                 // brute-force pretty-print (for debugging)
                                 var json_pretty = json
@@ -82,9 +82,12 @@
                                     .Replace("\"Verb\":",       "\n\tVerb:")
                                     .Replace("\"find\"}]",      "\"find\"\n}]");
 
+#if ASK_FOR_FORMAT
                                 Console.Write("Specify yaml and/or json display (default is none) > ");
                                 var answer = Console.ReadLine().ToLower();
-
+#else
+                                var answer = "yaml";
+#endif
                                 if (answer.Contains("yaml") || answer.Contains("both"))
                                 {
                                     Console.WriteLine("YAML:");
@@ -101,11 +104,13 @@
 
                                 List<(byte book, byte chapter, byte verse)> scope = new();
 
-                                TQuery query = this.SearchEngine.Create(in this.ClientId, in blueprint);
+                                TQuery query = this.SearchEngine.Create(in this.ClientId, in expressions);
+
+                                return (blueprint, query, "", "ok");
                             }
                             else
                             {
-                                return (blueprint, "Internal Error: Unexpected blueprint encountered.", "");
+                                return (blueprint, null, "Internal Error: Unexpected blueprint encountered.", "error");
                             }
                         }
                         else
@@ -113,25 +118,25 @@
                             if (blueprint.Errors.Count > 0)
                             {
                                 var errors = string.Join("; ", blueprint.Errors);
-                                return (blueprint, errors, "");
+                                return (blueprint, null, errors, "error");
                             }
                             else
                             {
-                                return (blueprint, "Blueprint was invalid, but the error list was empty.", "");
+                                return (blueprint, null, "Blueprint was invalid, but the error list was empty.", "error (design anamoly)");
                             }
                         }
                     }
                     else
                     {
-                        return (blueprint, "Blueprint was invalid (unexpected error).", "");
+                        return (blueprint, null, "Blueprint was invalid (unexpected error).", "error (blueprint)");
                     }
                 }
                 else
                 {
-                    return (null, pinshot.root.error, "");
+                    return (null, null, pinshot.root.error, "error (parsing)");
                 }
             }
-            return (null, "Unable to parse the statement.", "");
+            return (null, null, "Unable to parse the statement.", "error (syntax)");
         }
     }
 }
