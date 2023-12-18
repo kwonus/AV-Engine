@@ -3,13 +3,13 @@
     using Blueprint.Blue;
     using Pinshot.Blue;
     using AVSearch;
+    using AVXLib;
 
     public class AVEngine
     {
-        private Blueprint QuelleModel;
+        private QStatement? QuelleModel;
         private PinshotLib QuelleParser;
         private readonly Guid ClientId;
-        private const string SDK = "C:/src/AVX/omega/AVX-Omega-3911.data";
 
 #if USE_NATIVE_LIBRARIES
         private NativeStatement SearchEngine;
@@ -17,9 +17,10 @@
         private AVQueryManager SearchEngine;
 #endif
 
-        public AVEngine()
+        public AVEngine(string home, string sdk)
         {
-            this.QuelleModel = new();
+            ObjectTable.SDK = sdk;
+            this.QuelleModel = null;
             this.QuelleParser = new();
             this.ClientId = Guid.NewGuid();
 
@@ -48,39 +49,22 @@
             {
                 if (string.IsNullOrWhiteSpace(pinshot.root.error))
                 {
-                    var blueprint = this.QuelleModel.Create(pinshot.root);
+                    QStatement statement = QStatement.Create(pinshot.root);
 
-                    if (blueprint != null)
+                    if (statement != null)
                     {
-                        if (blueprint.IsValid)
+                        if (statement.IsValid)
                         {
-                            if (blueprint.Singleton != null)
+                            if (statement.Singleton != null)
                             {
                                 ; // process singleton command
-                                return (blueprint, null, "", "Pretend that this is the result of an executed Quelle command");
+                                return (statement, null, "", "Pretend that this is the result of an executed Quelle command");
                             }
-                            else if (blueprint.Commands != null)
+                            else if (statement.Commands != null)
                             {
-                                var expressions = blueprint.Commands.Searches.ToList();
-                                string yaml = ICommand.YamlSerializerRaw(expressions);
-                                string json = ICommand.JsonSerializerRaw(expressions);
-                                
-                                // brute-force pretty-print (for debugging)
-                                var json_pretty = json
-                                    .Replace("}], \"Text\":",  "}],\n\tText:")
-                                    .Replace("}]}]", "  }]}]").Replace("}],", "  }],")
-                                    .Replace("\"IsQuoted\":",   "\n\tIsQuoted:")
-                                    .Replace("Fragments\":",    "\n\tFragments:")
-                                    .Replace("\"MatchAll\":",   "\n\t\tMatchAll:")
-                                    .Replace("\"AnyFeature\":", "\n\t\t\tAnyFeature:")
-                                    .Replace("\"Type\":",       "\n\t\t\t\tType:")
-                                    .Replace("\"WordKeys\":",   "\n\t\t\t\tWordKeys:")
-                                    .Replace("\"Phonetics\":",  "\n\t\t\t\tPhonetics:")
-                                    .Replace("\"Negate\":",     "\n\t\t\t\tNegate:")
-                                    .Replace("\"Text\":",       "\n\t\t\t\tText:")
-                                    .Replace("\"Anchored\":",   "\n\t\tAnchored:")
-                                    .Replace("\"Verb\":",       "\n\tVerb:")
-                                    .Replace("\"find\"}]",      "\"find\"\n}]");
+                                //var expressions = blueprint.Commands.Searches.ToList();
+                                //string yaml = ICommand.YamlSerializerRaw(expressions);
+                                //string json = ICommand.JsonSerializerRaw(expressions);
 
 #if ASK_FOR_FORMAT
                                 Console.Write("Specify yaml and/or json display (default is none) > ");
@@ -91,44 +75,44 @@
                                 if (answer.Contains("yaml") || answer.Contains("both"))
                                 {
                                     Console.WriteLine("YAML:");
-                                    Console.WriteLine(yaml);
+                                    //Console.WriteLine(yaml);
                                 }
                                 if (answer.Contains("json") || answer.Contains("both"))
                                 {
                                     Console.WriteLine("JSON:");
-                                    Console.WriteLine(json_pretty);
+                                    //Console.WriteLine(json_pretty);
                                 }
 
-                                QSettings qsettings = blueprint.LocalSettings;
-                                TSettings settings = new TSettings(in qsettings);
+                                //QSettings qsettings = blueprint.Commands.LocalSettings;
+                                //TSettings settings = new TSettings(in qsettings);
 
-                                List<(byte book, byte chapter, byte verse)> scope = new();
+                                //List<(byte book, byte chapter, byte verse)> scope = new();
 
-                                TQuery query = this.SearchEngine.Create(in this.ClientId, in expressions);
+                                //TQuery query = this.SearchEngine.Create(in this.ClientId, in expressions);
 
-                                return (blueprint, query, "", "ok");
+                                return (statement, null /*query*/, "", "ok") ;
                             }
                             else
                             {
-                                return (blueprint, null, "Internal Error: Unexpected blueprint encountered.", "error");
+                                return (statement, null, "Internal Error: Unexpected blueprint encountered.", "error");
                             }
                         }
                         else
                         {
-                            if (blueprint.Errors.Count > 0)
+                            if (statement.Errors.Count > 0)
                             {
-                                var errors = string.Join("; ", blueprint.Errors);
-                                return (blueprint, null, errors, "error");
+                                var errors = string.Join("; ", statement.Errors);
+                                return (statement, null, errors, "error");
                             }
                             else
                             {
-                                return (blueprint, null, "Blueprint was invalid, but the error list was empty.", "error (design anamoly)");
+                                return (statement, null, "Blueprint was invalid, but the error list was empty.", "error (design anamoly)");
                             }
                         }
                     }
                     else
                     {
-                        return (blueprint, null, "Blueprint was invalid (unexpected error).", "error (blueprint)");
+                        return (statement, null, "Blueprint was invalid (unexpected error).", "error (blueprint)");
                     }
                 }
                 else
