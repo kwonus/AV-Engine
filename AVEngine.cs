@@ -42,7 +42,7 @@
         {
             this.Release();
         }
-        public (QStatement? stmt, TQuery? find, string error, string status) Execute(string command)
+        public (QStatement? stmt, TQuery? find, bool ok, string message) Execute(string command)
         {
             var pinshot = this.QuelleParser.Parse(command);
             if (pinshot.root != null)
@@ -57,8 +57,8 @@
                         {
                             if (statement.Singleton != null)
                             {
-                                ; // process singleton command
-                                return (statement, null, "", "Pretend that this is the result of an executed Quelle command");
+                                var result = statement.Singleton.Execute();
+                                return (statement, null, result.ok, result.message);
                             }
                             else if (statement.Commands != null)
                             {
@@ -90,11 +90,11 @@
 
                                 //TQuery query = this.SearchEngine.Create(in this.ClientId, in expressions);
 
-                                return (statement, null /*query*/, "", "ok") ;
+                                return (statement, null /*query*/, true, "ok") ;
                             }
                             else
                             {
-                                return (statement, null, "Internal Error: Unexpected blueprint encountered.", "error");
+                                return (statement, null, false, "Internal Error: Unexpected blueprint encountered.");
                             }
                         }
                         else
@@ -102,25 +102,25 @@
                             if (statement.Errors.Count > 0)
                             {
                                 var errors = string.Join("; ", statement.Errors);
-                                return (statement, null, errors, "error");
+                                return (statement, null, false, errors);
                             }
                             else
                             {
-                                return (statement, null, "Blueprint was invalid, but the error list was empty.", "error (design anamoly)");
+                                return (statement, null, false, "Query was invalid, but the error list was empty.");
                             }
                         }
                     }
                     else
                     {
-                        return (statement, null, "Blueprint was invalid (unexpected error).", "error (blueprint)");
+                        return (statement, null, false, "Query was invalid.");
                     }
                 }
                 else
                 {
-                    return (null, null, pinshot.root.error, "error (parsing)");
+                    return (null, null, false, pinshot.root.error);
                 }
             }
-            return (null, null, "Unable to parse the statement.", "error (syntax)");
+            return (null, null, false, "Unable to parse the statement.");
         }
     }
 }
