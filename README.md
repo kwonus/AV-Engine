@@ -73,7 +73,7 @@ The QFind object depicted above is almost a framework in itself. Figure 3-2 prov
 
 Effectively, the QFind object is deserialized into a TQuery object hierarchy, which preserves the blueprint objects into a structure that facilitates a phased approach to yielding a search summary and search results. The TQuery object hierarchy also simplifies  rendering and highlighting for downstream clients. There are exactly two phases for each query. AV-Search returns a bare-bones TQuery object in phase one.  AV-Search subsequently populates TChapter hierarchies on demand per chapter in the subsequent phase. All calls from AV-Engine to AV-Search are in-process. An earlier experience, but unfinished at [github.com/AV-Text/AVX]() is a similar design that utilizes serialization and native C++ code. That experiment has been tabled for now in favor of a fully .NET 8 library stack.
 
-The UML class diagram, depicted in Figure 3-3, reveals the two-phase approach. Gray boxes are not serialized; instead, they manage access to instantiated TQuery objects. The query summary is represented by the TQuery (golden class) hierarchy in Figure 3-3. The purple objects are the per-chapter requests to populate specific TChapter instances upon demand.
+The UML class diagram, depicted in Figure 3-3, reveals the two-phase approach. The Gray box is not serialized; instead, it manages access to instantiated TQuery objects. The query summary is represented by the TQuery (golden class) hierarchy in Figure 3-3. The purple objects are the per-chapter requests to populate specific TChapter instances upon demand.
 
 ![](AVX-Results.png)
 
