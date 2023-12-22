@@ -4,6 +4,8 @@
     using Pinshot.Blue;
     using AVSearch;
     using AVXLib;
+    using BlueprintBlue;
+    using YamlDotNet.Core;
 
     public class AVEngine
     {
@@ -62,33 +64,16 @@
                             }
                             else if (statement.Commands != null)
                             {
-                                //var expressions = blueprint.Commands.Searches.ToList();
-                                //string yaml = ICommand.YamlSerializerRaw(expressions);
-                                //string json = ICommand.JsonSerializerRaw(expressions);
-
-#if ASK_FOR_FORMAT
-                                Console.Write("Specify yaml and/or json display (default is none) > ");
-                                var answer = Console.ReadLine().ToLower();
-#else
-                                var answer = "yaml";
-#endif
-                                if (answer.Contains("yaml") || answer.Contains("both"))
+                                foreach (var segment in statement.Commands.Segments)
                                 {
-                                    Console.WriteLine("YAML:");
-                                    //Console.WriteLine(yaml);
+                                    if (segment.MacroLabel != null)
+                                    {
+                                        ExpandableMacro macro = new ExpandableMacro(segment, segment.MacroLabel.Label);
+                                        statement.Context.AddMacro(macro);
+                                    }
+                                    ExpandableHistory item = new ExpandableHistory(segment, (UInt64)(statement.Commands.Context.History.Count));
+                                    statement.Context.AddHistory(item);
                                 }
-                                if (answer.Contains("json") || answer.Contains("both"))
-                                {
-                                    Console.WriteLine("JSON:");
-                                    //Console.WriteLine(json_pretty);
-                                }
-
-                                //QSettings qsettings = blueprint.Commands.LocalSettings;
-                                //TSettings settings = new TSettings(in qsettings);
-
-                                //List<(byte book, byte chapter, byte verse)> scope = new();
-
-                                //TQuery query = this.SearchEngine.Create(in this.ClientId, in expressions);
 
                                 return (statement, null /*query*/, true, "ok") ;
                             }
