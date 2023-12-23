@@ -55,7 +55,7 @@ Evidenced by Figure 1, serialization is used for parameters when crossing from C
 
 ### Blueprint-Blue Internals
 
-Blueprint-Blue is an in-process .NET 8 assembly. It uses standard C# interfaces for parameters and the return types. However, the assembly also obfuscates calls to a native Rust library to parse the specialized Quelle grammar into a JSON parse tree. The relationship to the [Rust] [Pinshot-blue library](https://github.com/kwonus/pinshot-blue) is shown in Figure 1. Once a parse tree [JSON text] is converted into the Blueprint-Blue object framework, it is returned to the AV-Engine for further processing. The OO model/blueprint is depicted in Figure 3-1.
+Blueprint-Blue is an in-process .NET 8 assembly. It uses standard C# interfaces for parameters and the return types. However, the assembly also obfuscates calls to a native Rust library to parse the specialized Quelle grammar into a JSON parse tree. The relationship to the [Rust] [Pinshot-blue library](https://github.com/kwonus/pinshot-blue) is shown in Figure 1. Once a parse tree [JSON text] is converted into the Blueprint-Blue object framework, it is returned to the AV-Engine for further processing. The OO model/blueprint is depicted in Figure 3-1. All green objects in the diagram relate to explicit Quelle commands. All purple objects in the diagram relate to implicit Quelle commands/expressions. All gray objects are neutral or shared.
 
 ![](QCommand.png)
 
