@@ -4,8 +4,7 @@
     using Pinshot.Blue;
     using AVSearch;
     using AVXLib;
-    using BlueprintBlue;
-    using YamlDotNet.Core;
+    using AVSearch.Model.Results;
 
     public class AVEngine
     {
@@ -44,7 +43,7 @@
         {
             this.Release();
         }
-        public (QStatement? stmt, TQuery? find, bool ok, string message) Execute(string command)
+        public (QStatement? stmt, QueryResult? find, bool ok, string message) Execute(string command)
         {
             var pinshot = this.QuelleParser.Parse(command);
             if (pinshot.root != null)
@@ -74,7 +73,7 @@
                                     ExpandableHistory item = new ExpandableHistory(segment, (UInt64)(statement.Commands.Context.History.Count));
                                     statement.Context.AddHistory(item);
                                 }
-
+                                // TO DO: Execute
                                 return (statement, null /*query*/, true, "ok") ;
                             }
                             else
