@@ -74,7 +74,8 @@
                                     statement.Context.AddHistory(item);
                                 }
                                 // TO DO: Execute
-                                return (statement, null /*query*/, true, "ok") ;
+                                bool ok = statement.Commands.Execute();
+                                return (statement, null /*query*/, ok, ok ? "ok" : "TO DO: Add error message") ;
                             }
                             else
                             {
