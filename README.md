@@ -81,7 +81,7 @@ Figure 3-3 more deeply reveals the two-phase nature for query requests. The quer
 
 ### AVX-Lib Internals
 
-AVX-Lib simplifies access to the [Digital-AV SDK](https://github.com/kwonus/Digital-AV). The SDK, shared between the two libraries, provides NLP and linguistic features of the King James Bible. To be clear, the Digital-AV is what makes searches in the AVX-Framework, both feasible and fast. AVX-Lib is compiled with Dotnet 8.
+AVX-Lib simplifies access to the [Digital-AV SDK](https://github.com/kwonus/Digital-AV). The SDK provides NLP and linguistic features of the King James Bible. To be clear, the Digital-AV is what makes searches and rendering in the AVX-Framework, both feasible and fast. AVX-Lib is compiled with Dotnet 8.
 
 ### AV-Engine Internals
 
