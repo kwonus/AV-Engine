@@ -65,7 +65,7 @@ The QFind object depicted above is almost a framework in itself. Figure 3-2 prov
 
 ![](QFind.png)
 
-**Figure 3-2**: Detail of the QFind class of the Blueprint-Blue object model
+**Figure 3-2**: Detail of the QFind class of the Blueprint-Blue object model [revision #3C27]
 
 
 
@@ -77,7 +77,7 @@ Figure 3-3 more deeply reveals the two-phase nature for query requests. The quer
 
 ![](AVX-Results.png)
 
-**Figure 3-3**: The AVX result hierarchy implements two-phased fetching of query results
+**Figure 3-3**: The AVX result hierarchy implements two-phased fetching of query results [revision #3C27]
 
 ### AVX-Lib Internals
 
