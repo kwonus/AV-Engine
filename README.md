@@ -77,7 +77,7 @@ Figure 3-3 more deeply reveals the two-phase nature for query requests. The quer
 
 ![](AVX-Results.png)
 
-**Figure 3-3**: The AVX result hierarchy implements two-phased fetching of query results [revision #3C27]
+**Figure 3-3**: The AVX result hierarchy implements two-phased fetching of query results [revision #4106]
 
 ### AVX-Lib Internals
 
