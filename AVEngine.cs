@@ -73,7 +73,6 @@
                                     ExpandableHistory item = new ExpandableHistory(segment, (UInt64)(statement.Commands.Context.History.Count));
                                     statement.Context.AddHistory(item);
                                 }
-                                // TO DO: Execute
                                 bool ok = statement.Commands.Execute();
                                 return (statement, null /*query*/, ok, ok ? "ok" : "TO DO: Add error message") ;
                             }
