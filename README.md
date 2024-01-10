@@ -91,7 +91,7 @@ Figure 3-3 reveals the entire QueryResult hierarchy. The purple objects offer bo
 
 ### AVX-Lib Internals
 
-AVX-Lib simplifies access to the [Digital-AV SDK](https://github.com/kwonus/Digital-AV). The SDK provides NLP and linguistic features of the King James Bible. To be clear, the Digital-AV is what makes searches and rendering in the AVX-Framework, both feasible and fast. AVX-Lib is compiled with Dotnet 8.  AVX-Lib leverages the latest "Omega" release of Digital-AV. The Omega release exposes the entire SDK in a single binary file that includes a built-in index/directory (the earlier "Z-Series" release of Digital-AV was far more cumbersome. There were numerous files and a lot more provisioning steps that were placed upon the consumer of the SDK). In short, AVX-Lib is a component of the Digital-AV SDK, and is designed specicially to simplify its use.
+AVX-Lib simplifies access to the [Digital-AV SDK](https://github.com/kwonus/Digital-AV). The SDK provides NLP and linguistic features of the King James Bible. To be clear, the Digital-AV is what makes searches and rendering in the AVX-Framework, both feasible and fast. AVX-Lib is compiled with Dotnet 8.  AVX-Lib leverages the latest "Omega" release of Digital-AV. The Omega release exposes the entire SDK in a single binary file that includes a built-in index/directory (the earlier "Z-Series" release of Digital-AV was far more cumbersome. There were numerous files and a lot more provisioning steps that were placed upon the consumer of the SDK). In short, AVX-Lib is a component of the Digital-AV SDK, and is designed specicially to simplify its use. To be clear, when we say "consumer", there is no implied cost. All component of the AVX framework are as free as the gospel.
 
 ### AV-Engine Internals
 
