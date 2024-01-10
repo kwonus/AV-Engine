@@ -99,11 +99,11 @@ AV-Engine is an in-process .NET 8 assembly. It uses standard C# interfaces for p
 
 ### Development Roadmap
 
-A BETA release of AV-Bible and AV-Console are planned for CYQ1/2024. The beta roadmap for 2023 is depicted in Figure 4-1.
+A BETA release of AV-Bible and AV-Console are planned for CYQ1/2024. This beta implementation is depicted in Figure 4-1.
 
 ![](AVX-Roadmap-2023.png)
 
-**Figure 4-1**: Development roadmap for BETA releases [revision #3C12]
+**Figure 4-1**: Initial BETA release early in 2024 [revision #3C12]
 
 I plan to harden AV-Bible (Windows desktop application) and release it into the Microsoft Store in the second or third quarter of 2024. That release will gut the existing search engine of AV-Bible-2021.  A refactored AV-2024 will include a fully functional implementation of AVX-Framework. Figure 4-2, identifies additional artifacts expected after AV-Bible-2024 is delivered to the Microsoft store:
 
