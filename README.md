@@ -87,7 +87,7 @@ Figure 3-3 reveals the entire QueryResult hierarchy. The purple objects offer bo
 
 ![](AVX-Results.png)
 
-**Figure 3-3**: The QueryBook/QueryChapter hierarchy exposes both a summary of results <u>and</u> detailed higlighting information for chapter-by-chapter rendering [revision #4106]
+**Figure 3-3**: The QueryBook hierarchy exposes both a summary of results <u>and</u> detailed information to support rendering and highlighting [revision #4106]
 
 ### AVX-Lib Internals
 
