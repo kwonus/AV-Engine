@@ -41,7 +41,7 @@ Notwithstanding an abundance of internal components, consumers of AVX-Framework 
 
 ![](AVX-Framework.png)
 
-**Figure 1**: AVX-Framework dependency diagram [revision #3C12]
+**Figure 1**: AVX-Framework dependency diagram [rev #3C12]
 
 Evidenced by Figure 1, serialization is used for parameters when crossing from C# into native Rust. Parameter serialization, for in-proc cross-language invocation, is used in lieu more granular parameter-marshalling, because it is both more efficient and less fragile than marshalling. All other method invocations utilize POCO (plain old C# objects). The table in Figure 2 identifies inputs and outputs per module, along with repository references.
 
@@ -55,7 +55,7 @@ Evidenced by Figure 1, serialization is used for parameters when crossing from C
 | **Blueprint-Blue** *([github.com/kwonus/blueprint-blue]())*<br/>[./Blueprint-Blue-Lib](https://github.com/kwonus/blueprint-blue/tree/main/Blueprint-Blue-Lib) | POCO                               | POCO                                                         |
 | **NUPhone** *([github.com/kwonus/NUPhone]())*<br/>[./PhonemeEmbeddings](https://github.com/kwonus/NUPhone) | POCO                               | POCO                                                         |
 
-**Figure 2**: AVX-Framework input and output definition and repository details [revision #3C12]
+**Figure 2**: AVX-Framework input and output definition and repository details [rev #3C12]
 
 ### Pinshot-Blue Internals
 
@@ -73,7 +73,7 @@ The QFind object depicted above is almost a framework in itself. Figure 3-2 prov
 
 ![](QFind.png)
 
-**Figure 3-2**: Detail of the QFind class of the Blueprint-Blue object model [revision #3C27]
+**Figure 3-2**: Detail of the QFind class of the Blueprint-Blue object model [rev #3C27]
 
 
 
@@ -87,7 +87,7 @@ Figure 3-3 reveals the entire QueryResult hierarchy. The purple objects offer bo
 
 ![](AVX-Results.png)
 
-**Figure 3-3**: The QueryBook hierarchy exposes both a summary of results <u>and</u> detailed information to support rendering and highlighting [revision #4106]
+**Figure 3-3**: QueryBook hierarchy exposes summary information <u>and</u> details to support rendering & highlighting [rev #4106]
 
 ### AVX-Lib Internals
 
