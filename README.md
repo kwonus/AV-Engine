@@ -97,17 +97,17 @@ AV-Engine is an in-process .NET 8 assembly. It uses standard C# interfaces for p
 
 ### Development Roadmap
 
-A BETA release of AV-Bible and AV-Console are planned for 2023. The development roadmap for 2023 is depicted in Figure 4-1.
+A BETA release of AV-Bible and AV-Console are planned for CYQ1/2024. The beta roadmap for 2023 is depicted in Figure 4-1.
 
 ![](AVX-Roadmap-2023.png)
 
-**Figure 4-1**: Development roadmap for BETA releases in 2023 [revision #3C12]
+**Figure 4-1**: Development roadmap for BETA releases [revision #3C12]
 
-I plan to harden AV-Bible (Windows desktop application) and release it into the Microsoft Store in the first quarter of 2024. That release will fully gut the existing search engine of AV-Bible-2021.  A refactored AV-2024 will include a fully functional implementation of AVX-Framework. Figure 4-2, identifies additional artifacts expected after AV-Bible-2024 is delivered to the Microsoft store:
+I plan to harden AV-Bible (Windows desktop application) and release it into the Microsoft Store in the second or third quarter of 2024. That release will gut the existing search engine of AV-Bible-2021.  A refactored AV-2024 will include a fully functional implementation of AVX-Framework. Figure 4-2, identifies additional artifacts expected after AV-Bible-2024 is delivered to the Microsoft store:
 
 ![](AVX-Roadmap-2024.png)
 
-**Figure 4-2**: Roadmap for [user-facing] application releases in 2024 [revision #3C12]
+**Figure 4-2**: Roadmap for AV-Bible-2024 [user-facing application] release in CYQ2 of CYQ3 of 2024 [revision #3C12]
 
 ### Implementation Status
 
@@ -117,10 +117,10 @@ All source-code can be found at https://github.com/kwonus.
 
 The AV-Bible application is [currently available](https://apps.microsoft.com/detail/9NN9X59QTZ3J?gl=US&hl=en-us) in the Microsoft Store. The existing app is being retrofitted to utilize the  forthcoming AVX-Framework. With this new framework, AV-Bible will expose dozens of new features and capabilities. And to be honest, the feature set of the existing app is a bit limited (as it sports an older SDK, and an earlier, v1-alpha release of Quelle).
 
-While not identified on the roadmap in Figure 4-2, a CYQ3 or CYQ4 release of Digital-AV is expected to add NUPhone pronunciations for the Elizabethan-English lexicon. Currently, only NUPhone pronunciations exist for the Modern-English lexicon.
+While not identified on the roadmap in Figure 4-2, a CYQ4/2024 release of Digital-AV is expected to add NUPhone pronunciations for the Elizabethan-English lexicon. Currently, only NUPhone pronunciations exist for the Modern-English lexicon.
 
 ### Final Thoughts
 
-Your feedback on this framework is welcome! AVX Framework could easily become a rich foundation utilized by translators, whom are faithful to the AV Text and/or Textus Receptus. Such an effort would require a team, instead of an individual. If you have a ministry that includes such a vision, please do not hesitate to reach out to me directly! I can easily be found on LinkedIn and/or Facebook. By all means, let's talk!
+Your feedback on this framework is welcome! AVX Framework could easily become a great foundation for bible translators, whom are faithful to the KJV and/or Textus Receptus doctrines. Such an effort would require a team, instead of an individual. If you have a ministry that includes such a vision, please do not hesitate to reach out to me directly! I can easily be found on LinkedIn and/or Facebook. By all means, let's talk!
 
 **The Lord gave the word: great was the company of those that published it. -- Psalm 68:11**
