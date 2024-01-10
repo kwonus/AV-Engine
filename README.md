@@ -37,7 +37,7 @@ The framework is highly modular. Earlier works were much more monolithic, not we
 
 Incidentally, a modular architecture is much like a micro-service architecture, but rather than REST endpoints, invocations are made in-process. These in-proc invocations obviate the need for sophisticated plumbing and eliminate most serialization and deserialization. In-proc is also more performant than REST or even RPC. All said, a modular architecture with in-proc invocations, atop .Net 8, is a solid foundation. It has many advantages, not the least of which is rapid development and easy debugging.
 
-Notwithstanding an abundance of internal components, consumers of AVX-Framework directly target a <u>single</u> dotnet assembly, namely AV-Engine. Additional capabilities are exposed by AVX-Lib and NUPhone, but those capabilities can effectively be silently ignored. All dependencies are self-contained and opaque. Nevertheless, the modules that compose AVX Framework, along with file dependencies, are depicted in Figure 1 below:
+Notwithstanding an abundance of internal components, consumers of AVX-Framework directly target a <u>single</u> dotnet assembly, namely AV-Engine. Additional capabilities are exposed by AVX-Lib and NUPhone, but those capabilities can effectively be silently ignored. All dependencies are self-contained and opaque. Nevertheless, the modules that compose AVX Framework, along with file dependencies, are depicted in Figure 1:
 
 ![](AVX-Framework.png)
 
@@ -105,7 +105,7 @@ A BETA release of AV-Bible and AV-Console are planned for CYQ1/2024. This beta i
 
 **Figure 4-1**: Initial BETA release early in 2024 [revision #3C12]
 
-I plan to harden AV-Bible (Windows desktop application) and release it into the Microsoft Store in the second or third quarter of 2024. That release will gut the existing search engine of AV-Bible-2021.  A refactored AV-2024 will include a fully functional implementation of AVX-Framework. Figure 4-2, also identifies additional artifacts expected after AV-Bible-2024 is delivered to the Microsoft store:
+I plan to harden AV-Bible (Windows desktop application) and release it into the Microsoft Store in the second or third quarter of 2024. That release will gut the existing search engine of AV-Bible-2021.  A refactored AV-2024 will include a fully functional implementation of AVX-Framework. Figure 4-2, also identifies additional artifacts expected after AV-Bible-2024 is deployed to the Microsoft store:
 
 ![](AVX-Roadmap-2024.png)
 
