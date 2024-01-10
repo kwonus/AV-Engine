@@ -105,15 +105,15 @@ A BETA release of AV-Bible and AV-Console are planned for CYQ1/2024. This beta i
 
 **Figure 4-1**: Initial BETA release early in 2024 [revision #3C12]
 
-I plan to harden AV-Bible (Windows desktop application) and release it into the Microsoft Store in the second or third quarter of 2024. That release will gut the existing search engine of AV-Bible-2021.  A refactored AV-2024 will include a fully functional implementation of AVX-Framework. Figure 4-2, identifies additional artifacts expected after AV-Bible-2024 is delivered to the Microsoft store:
+I plan to harden AV-Bible (Windows desktop application) and release it into the Microsoft Store in the second or third quarter of 2024. That release will gut the existing search engine of AV-Bible-2021.  A refactored AV-2024 will include a fully functional implementation of AVX-Framework. Figure 4-2, also identifies additional artifacts expected after AV-Bible-2024 is delivered to the Microsoft store:
 
 ![](AVX-Roadmap-2024.png)
 
-**Figure 4-2**: Roadmap for AV-Bible-2024 [user-facing application] release in CYQ2 of CYQ3 of 2024 [revision #3C12]
+**Figure 4-2**: Roadmap for AV-Bible-2024 and other releases to begin in CYQ2 of 2024 [revision #3C12]
 
 ### Implementation Status
 
-All blue boxes are DLL libraries. Green boxes represent applications. Work will commence on the dark-gray boxes some time after AV-Bible is updated in the Microsoft Store.  It's helpful to have this pic as a roadmap. As you can see, AVX-Framework is a dependency for all apps on the architectural roadmap.
+All blue boxes are DLL libraries. Green boxes represent applications. Work will commence on the dark-gray boxes some time after AV-Bible-2024 is deployed to the Microsoft Store.  It's helpful to have this pic as a roadmap. As you can see, AVX-Framework is a dependency for all apps on the architectural roadmap.
 
 All source-code can be found at https://github.com/kwonus. 
 
