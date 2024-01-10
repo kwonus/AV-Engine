@@ -57,7 +57,7 @@ Evidenced by Figure 1, serialization is used for parameters when crossing from C
 
 ### Pinshot-Blue Internals
 
-[Pinshot-Blue](github.com/kwonus/pinshot-blue) is an in-process Rust library with C-compatible FFI definitions. It is called by Blueprint-Blue using P/Invoke to perform the parse of a PEG grammar. The grammar itself is baked into Binshot-Blue and implements the full specification of [Quelle-AVX](https://github.com/kwonus/Quelle/blob/main/Quelle-AVX.md). Pinshot-Blue is a lean native library that does just one thing: it converts a Quelle command into a parse tree using the [Pest crate](https://docs.rs/pest/latest/pest/) and returns the parse as text with the contents representing a recursive JSON object representation of the parse.
+[Pinshot-Blue](github.com/kwonus/pinshot-blue) is an in-process Rust library with C-compatible FFI definitions. It is called by Blueprint-Blue using P/Invoke to perform the parse of a PEG grammar. The grammar itself is baked into Pinshot-Blue and implements the full specification of [Quelle-AVX](https://github.com/kwonus/Quelle/blob/main/Quelle-AVX.md). Pinshot-Blue is a lean native library that does just one thing: it converts a Quelle command into a parse tree using the [Pest crate](https://docs.rs/pest/latest/pest/) and returns the parse as text with the contents representing a recursive JSON object representation of the parse.
 
 ### Blueprint-Blue Internals
 
