@@ -77,7 +77,7 @@ The QFind object depicted above is almost a framework in itself. Figure 3-2 prov
 
 ![](QFind.png)
 
-**Figure 3-2**: Detail of the QFind class of the Blueprint-Blue object model [rev #3C27]
+**Figure 3-2**: Detail of the QFind class of the Blueprint-Blue object model [rev #4111]
 
 
 
