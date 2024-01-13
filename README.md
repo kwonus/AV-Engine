@@ -56,15 +56,16 @@ Notwithstanding an abundance of internal components, consumers of AVX-Framework 
 
 Evidenced by Figure 1, serialization is used for parameters when crossing from C# into native Rust. Parameter serialization, for in-proc cross-language invocation, is used in lieu more granular parameter-marshalling, because it is both more efficient and less fragile than marshalling. All other method invocations utilize POCO (plain old C# objects). The table in Figure 2 identifies inputs and outputs per module, along with repository references.
 
-| **Module**  *(repository)*<br/>source code folder            | **Input**                          | **Output**                                                   |
-| ------------------------------------------------------------ | ---------------------------------- | ------------------------------------------------------------ |
-| **AV-Engine** *([github.com/kwonus/AV-Engine]())*            | POCO                               | POCO, JSON, or YAML                                          |
-| **AV-Search** *([github.com/kwonus/AV-Search]())*            | POCO                               | POCO                                                         |
-| **Digital-AV** *([github.com/kwonus/Digital-AV]())*          | n/a                                | *see specification:*<br />[Digital-AV-Ω39.pdf](https://github.com/AV-Text/AVX/blob/master/omega/Digital-AV-Ω39.pdf) |
-| **AVX-Lib** *([github.com/kwonus/Digital-AV]())*<br/>[./omega/foundations/csharp/AVXLib](https://github.com/kwonus/Digital-AV/tree/master/omega/foundations/csharp/AVXLib) | POCO                               | POCO                                                         |
-| **Pinshot-Blue** *([github.com/kwonus/pinshot-blue]())*<br/>[./src](https://github.com/kwonus/pinshot-blue/tree/main/src) | P/Invoke:<br/>null-terminated text | JSON-formatted text [pinshot]<br/>*(null-terminated text)*   |
-| **Blueprint-Blue** *([github.com/kwonus/blueprint-blue]())*<br/>[./Blueprint-Blue-Lib](https://github.com/kwonus/blueprint-blue/tree/main/Blueprint-Blue-Lib) | POCO                               | POCO                                                         |
-| **NUPhone** *([github.com/kwonus/NUPhone]())*<br/>[./PhonemeEmbeddings](https://github.com/kwonus/NUPhone) | POCO                               | POCO                                                         |
+| **Module**  *(repository)*<br/>source code folder            | OS and/or Runtime      | Language |
+| ------------------------------------------------------------ | ---------------------- | -------- |
+| **AV-Engine** *([github.com/kwonus/AV-Engine]())*            | .Net 8                 | C#       |
+| **AV-Search** *([github.com/kwonus/AV-Search]())*            | .Net 8                 | C#       |
+| **Digital-AV** *([github.com/kwonus/Digital-AV]())*          | .Net 8                 | C#       |
+| **AVX-Lib** *([github.com/kwonus/Digital-AV]())*<br/>[./omega/foundations/csharp/AVXLib](https://github.com/kwonus/Digital-AV/tree/master/omega/foundations/csharp/AVXLib) | .Net 8                 | C#       |
+| **Pinshot-Blue** *([github.com/kwonus/pinshot-blue]())*<br/>[./src](https://github.com/kwonus/pinshot-blue/tree/main/src) | Windows (x64)          | Rust     |
+| **Blueprint-Blue** *([github.com/kwonus/blueprint-blue]())*<br/>[./Blueprint-Blue-Lib](https://github.com/kwonus/blueprint-blue/tree/main/Blueprint-Blue-Lib) | .Net 8                 | C#       |
+| **NUPhone** *([github.com/kwonus/NUPhone]())*<br/>[./PhonemeEmbeddings](https://github.com/kwonus/NUPhone) | .Net 8                 | C#       |
+| **AV-Bible** *(https://github.com/kwonus/AVBible)*           | Windows / .Net 8 / WPF | C#       |
 
 **Figure 2**: AVX-Framework input and output definition and repository details [rev #3C12]
 
