@@ -24,7 +24,7 @@ AV-Engine is the central point of access to the AVX-Framework. With the debut of
 - search by named entity type
 - search by Strongs number
 - search with detailed proximity rules
-- rich command/search language via the Pinshot-Blue library and its PEG grammar, conforming to the [Quelle specification](https://github.com/kwonus/Quelle/blob/main/Quelle-AVX.md).
+- rich command/search language via the Pinshot-Blue library and its PEG grammar.
 - object-model representations of AVX dialect of the Quelle grammar via the Blueprint-Blue library
 - AV-Engine library glues it all together
 
