@@ -20,10 +20,15 @@ AV-Engine is the central point of access to the AVX-Framework. With the debut of
 
 - sounds-alike searching via NUPhone Representation and the companion NUPhone dotnet assembly
 - ability to precisely render text, with metadata from search to accommodate term-highlighting of matched query tokens
-- complete support for dual lexicons 
+- complete support for dual lexicons
+- search by named entity type
+- search by Strongs number
+- search with detailed proximity rules
 - rich command/search language via the Pinshot-Blue library and its PEG grammar, conforming to the [Quelle specification](https://github.com/kwonus/Quelle/blob/main/Quelle-AVX.md).
 - object-model representations of AVX dialect of the Quelle grammar via the Blueprint-Blue library
 - AV-Engine library glues it all together
+
+All of these search options are clearly detailed using a formal grammar as described in the [Quelle specification](https://github.com/kwonus/Quelle/blob/main/Quelle-AVX.md).
 
 ### Earlier Works
 
