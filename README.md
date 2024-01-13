@@ -54,7 +54,7 @@ Notwithstanding an abundance of internal components, consumers of AVX-Framework 
 
 **Figure 1**: AVX-Framework dependency diagram [rev #3C12]
 
-Evidenced by Figure 1, serialization is used for parameters when crossing from C# into native Rust. Parameter serialization, for in-proc cross-language invocation, is used in lieu more granular parameter-marshalling, because it is both more efficient and less fragile than marshalling. All other method invocations utilize POCO (plain old C# objects). The table in Figure 2 identifies repository references, and OS dependencies and runtime when applicable.
+Evidenced by Figure 1, serialization is used for parameters when crossing from C# into native Rust. Parameter serialization, for in-proc cross-language invocation, is used in lieu more granular parameter-marshalling, because it is both more efficient and less fragile than marshalling. All other method invocations utilize POCO (plain old C# objects). The table in Figure 2 identifies repository references, OS dependencies and runtime when applicable.
 
 | **Module**  *(repository)*<br/>source code folder            | OS and/or Runtime      | Language |
 | ------------------------------------------------------------ | ---------------------- | -------- |
