@@ -5,6 +5,8 @@
     using AVSearch;
     using AVXLib;
     using AVSearch.Model.Results;
+    using Blueprint.Model.Implicit;
+    using static Blueprint.Model.Implicit.QFormat;
 
     public class AVEngine
     {
@@ -17,6 +19,11 @@
 #else
         private AVQueryManager SearchEngine;
 #endif
+
+        public string Render(byte b, byte c, byte v, QFormatVal format, QLexicalDisplay lexicalDisplay, bool showDiffs)
+        {
+            return string.Empty;
+        }
 
         public AVEngine(string home, string sdk)
         {
