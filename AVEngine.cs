@@ -4,7 +4,7 @@
     using Pinshot.Blue;
     using AVSearch;
     using AVXLib;
-    using AVSearch.Model.Results;
+    using AVSearch.Model.Results; 
     using Blueprint.Model.Implicit;
     using static Blueprint.Model.Implicit.QFormat;
 
