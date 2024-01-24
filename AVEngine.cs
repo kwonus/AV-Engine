@@ -6,7 +6,10 @@
     using AVXLib;
     using AVSearch.Model.Results; 
     using Blueprint.Model.Implicit;
-    using static Blueprint.Model.Implicit.QFormat;
+    using YamlDotNet.Core.Tokens;
+    using AVXLib.Memory;
+    using static AVXLib.Framework.Numerics;
+    using System.Text;
 
     public class AVEngine
     {
@@ -19,9 +22,100 @@
 #else
         private AVQueryManager SearchEngine;
 #endif
-
-        public string Render(byte b, byte c, byte v, QFormatVal format, QLexicalDisplay lexicalDisplay, bool showDiffs)
+        private static void AddPunctuation(StringBuilder builder, ushort previousPunctuation, ushort currentPunctuation, bool s)
         {
+            bool prevParen = (previousPunctuation & Punctuation.Parenthetical) != 0;
+            bool thisParen = (currentPunctuation & Punctuation.Parenthetical) != 0;
+
+            if (thisParen && !prevParen)
+            {
+                builder.Insert(0, '(');
+            }
+
+            bool eparen  = (currentPunctuation & Punctuation.CloseParen) == Punctuation.CloseParen;
+            bool posses  = (currentPunctuation & Punctuation.Possessive) == Punctuation.Possessive;
+            bool exclaim = (currentPunctuation & Punctuation.Clause) == Punctuation.Exclamatory;
+            bool declare = (currentPunctuation & Punctuation.Clause) == Punctuation.Declarative;
+            bool dash    = (currentPunctuation & Punctuation.Clause) == Punctuation.Dash;
+            bool semi    = (currentPunctuation & Punctuation.Clause) == Punctuation.Semicolon;
+            bool colon   = (currentPunctuation & Punctuation.Clause) == Punctuation.Colon;
+            bool comma   = (currentPunctuation & Punctuation.Clause) == Punctuation.Comma;
+            bool quest   = (currentPunctuation & Punctuation.Clause) == Punctuation.Interrogative;
+
+            if (posses)
+            {
+                if (!s)
+                    builder.Append("'s");
+                else
+                    builder.Append('\'');
+            }
+            if (eparen)
+                builder.Append(')');
+            if (declare)
+                builder.Append('.');
+            else if (comma)
+                builder.Append(',');
+            else if (semi)
+                builder.Append(';');
+            else if (colon)
+                builder.Append(':');
+            else if (quest)
+                builder.Append('?');
+            else if (exclaim)
+                builder.Append('!');
+            else if (dash)
+                builder.Append("--");
+        }
+        public string Render(TextWriter output, byte b, byte c, byte v, QFormat.QFormatVal format, QLexicalDisplay.QDisplayVal lex, bool showDiffs)
+        {
+            return string.Empty;
+        }
+        public string Render(TextWriter output, byte b, byte c, byte v, QFormat.QFormatVal format, QLexicalDisplay.QDisplayVal lex, Dictionary<BCVW, QueryTag> tags)
+        {
+            if (b >= 1 && b <= 66)
+            {
+                var book = ObjectTable.AVXObjects.Mem.Book.Slice(b, 1).Span[0];
+                if (c >= 1 && c <= book.chapterCnt)
+                {
+                    var chapter = ObjectTable.AVXObjects.Mem.Chapter.Slice(book.chapterIdx + c - 1, 1).Span[0];
+
+                    if (v >= 1 && v <= chapter.verseCnt)
+                    {
+                        output.Write(book.abbr4.ToString() + " " + c.ToString() + ':' + v.ToString());
+                        var writ = ObjectTable.AVXObjects.Mem.Written.Slice(chapter.writIdx, chapter.writCnt).Span;
+
+                        for (int w = 0; w < chapter.writCnt; w++)
+                        {
+                            if (writ[w].BCVWc.V == v)
+                            {
+                                bool bold = tags.ContainsKey(writ[w].BCVWc);
+                                bool italics = (byte)(writ[w].Punctuation & Punctuation.Italics) == Punctuation.Italics;
+
+                                string decoration = bold ? (italics ? "***" : "**") : (italics ? "*" : string.Empty);
+
+                                string entry = lex == QLexicalDisplay.QDisplayVal.AV
+                                    ? ObjectTable.AVXObjects.lexicon.GetLexDisplay(writ[w].WordKey)
+                                    : ObjectTable.AVXObjects.lexicon.GetLexDisplay(writ[w].WordKey);
+
+                                if (entry != null)
+                                {
+                                    output.Write(' ');
+                                    output.Write(decoration);
+
+                                    byte previousPunctuation = (w > 0) ? writ[w-1].Punctuation : (byte)0;
+                                    bool s = entry.EndsWith("s", StringComparison.InvariantCultureIgnoreCase);
+                                    StringBuilder token = new StringBuilder(entry);
+                                    AVEngine.AddPunctuation(token, previousPunctuation, writ[w].Punctuation, s);
+
+                                    output.Write(token.ToString());
+                                    output.Write(decoration);
+                                }
+                            }
+                        }
+                        output.WriteLine();
+                    }
+                }
+            }
             return string.Empty;
         }
 
