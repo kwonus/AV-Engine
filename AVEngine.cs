@@ -82,12 +82,14 @@
                     if (v >= 1 && v <= chapter.verseCnt)
                     {
                         output.Write(book.abbr4.ToString() + " " + c.ToString() + ':' + v.ToString());
-                        var writ = ObjectTable.AVXObjects.Mem.Written.Slice(chapter.writIdx, chapter.writCnt).Span;
-
-                        for (int w = 0; w < chapter.writCnt; w++)
+                        var writ = ObjectTable.AVXObjects.Mem.Written.Slice((int)(book.writIdx + chapter.writIdx), chapter.writCnt).Span;
+                        int cnt = (int) chapter.writCnt;
+                        bool located = false;
+                        for (int w = 0; w < cnt; /**/)
                         {
                             if (writ[w].BCVWc.V == v)
                             {
+                                located = true;
                                 bool bold = tags.ContainsKey(writ[w].BCVWc);
                                 bool italics = (byte)(writ[w].Punctuation & Punctuation.Italics) == Punctuation.Italics;
 
@@ -110,6 +112,15 @@
                                     output.Write(token.ToString());
                                     output.Write(decoration);
                                 }
+                                w++;
+                            }
+                            else if (located)
+                            {
+                                break;
+                            }
+                            else
+                            {
+                                w += writ[w].BCVWc.WC;
                             }
                         }
                         output.WriteLine();
