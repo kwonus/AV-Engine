@@ -6,10 +6,11 @@
     using AVXLib;
     using AVSearch.Model.Results; 
     using Blueprint.Model.Implicit;
-    using YamlDotNet.Core.Tokens;
     using AVXLib.Memory;
     using static AVXLib.Framework.Numerics;
     using System.Text;
+    using System.Collections.Generic;
+    using System;
 
     public class AVEngine
     {
@@ -66,11 +67,207 @@
             else if (dash)
                 builder.Append("--");
         }
-        public string Render(TextWriter output, byte b, byte c, byte v, QFormat.QFormatVal format, QLexicalDisplay.QDisplayVal lex, bool showDiffs)
+        // =================== //
+        // THE NEW WAY WILL BE //
+        // =================== //
+        //
+        // pass a defined HighlightMatch object into RenderChapter() function and get a ChapterRendering object back
+        // or //
+        // pass a defined HighlightMatch object into RenderVerse() function and get a VerseRendering object back
+
+        // if ISettings.LexicalDisplay == Lexion_BOTH, then we treat it as ISettings.Lexion_AVX when spans is non null
+        // otherwise, when ISettings.LexicalDisplay == Lexion_BOTH: this produces "side-by-side rendering
+        // ISettings.Lexion_UNDEFINED is interpretted as ISettings.Lexion_AV
+        public ChapterRendering GetRendering(QLexicalDomain lex, byte b, byte c, Dictionary<UInt32, HighlightMatch>? matches = null, bool sideBySideRendering = false) 
+        {
+            var rendering = new ChapterRendering(b, c, lex);
+            if (b >= 1 && b <= 66)
+            {
+                var book = ObjectTable.AVXObjects.Mem.Book.Slice(b, 1).Span[0];
+                if (c >= 1 && c <= book.chapterCnt)
+                {
+                    var chapter = ObjectTable.AVXObjects.Mem.Chapter.Slice(book.chapterIdx + c - 1, 1).Span[0];
+
+                    for (byte v = 1; v <= chapter.verseCnt; v++)
+                    {
+                        VerseRendering vrend = new VerseRendering(v);
+                        rendering.Verses[v] = vrend;
+
+                        var writ = ObjectTable.AVXObjects.Mem.Written.Slice((int)(book.writIdx + chapter.writIdx), chapter.writCnt).Span;
+                        int cnt = (int)chapter.writCnt;
+                        bool located = false;
+                        for (int w = 0; w < cnt; /**/)
+                        {
+                            if (writ[w].BCVWc.V == v)
+                            {
+                                located = true;
+
+                                WordRendering wrend = this.GetRendering(book, chapter, v, writ[w], matches: matches, differenceRendering: sideBySideRendering);
+                                vrend.Words[w] = wrend;
+                                w++;
+                                w++;
+                            }
+                            else if (located)
+                            {
+                                break;
+                            }
+                            else
+                            {
+                                w += writ[w].BCVWc.WC;
+                            }
+                        }
+                    }
+                }
+            }
+            return rendering;
+        }
+        // if ISettings.LexicalDisplay == Lexion_BOTH, then we treat it as ISettings.Lexion_AVX when spans is non null
+        // otherwise, when ISettings.LexicalDisplay == Lexion_BOTH: this produces "side-by-side rendering
+        // ISettings.Lexion_UNDEFINED is interpretted as ISettings.Lexion_AV
+        public VerseRendering GetRendering(QLexicalDomain lex, byte b, byte c, byte v, Dictionary<UInt32, HighlightMatch>? matches = null)
+        {
+            var rendering = new VerseRendering(v);
+            if (b >= 1 && b <= 66)
+            {
+                var book = ObjectTable.AVXObjects.Mem.Book.Slice(b, 1).Span[0];
+                if (c >= 1 && c <= book.chapterCnt)
+                {
+                    var chapter = ObjectTable.AVXObjects.Mem.Chapter.Slice(book.chapterIdx + c - 1, 1).Span[0];
+
+                    if (v >= 1 && v <= chapter.verseCnt)
+                    {
+                        var writ = ObjectTable.AVXObjects.Mem.Written.Slice((int)(book.writIdx + chapter.writIdx), chapter.writCnt).Span;
+                        int cnt = (int)chapter.writCnt;
+                        bool located = false;
+                        rendering.Words = new WordRendering[cnt];
+                        for (int w = 0; w < cnt; /**/)
+                        {
+                            if (writ[w].BCVWc.V == v)
+                            {
+                                located = true;
+
+                                WordRendering wrend = this.GetRendering(book, chapter, v, writ[w], matches);
+                                rendering.Words[w] = wrend;
+                                w++;
+                            }
+                            else if (located)
+                            {
+                                break;
+                            }
+                            else
+                            {
+                                w += writ[w].BCVWc.WC;
+                            }
+                        }
+                    }
+                }
+            }
+            return rendering;
+        }
+        private WordRendering GetRendering(Book book, Chapter chapter, byte v, Written writ, Dictionary<UInt32, HighlightMatch>? matches = null, bool differenceRendering = false) // ISettings.Lexion_BOTH is interpretted as ISettings.Lexion_AVX // ISettings.Lexion_UNDEFINED is interpretted as ISettings.Lexion_AV
+        {
+            WordRendering rendering = new();
+            rendering.Coordinates = writ.BCVWc;
+            rendering.Text = ObjectTable.AVXObjects.lexicon.GetLexDisplay(writ.WordKey);
+            rendering.Modern = ObjectTable.AVXObjects.lexicon.GetLexModern(writ.WordKey);
+            rendering.Punctuation = writ.Punctuation;
+            rendering.Triggers = new();
+            rendering.HighlightSpans = new();
+
+            var spans = matches.Where(tag => writ.BCVWc >= tag.Value.Start && writ.BCVWc <= tag.Value.Until);
+
+            if (matches != null)
+            {
+                foreach (var span in spans)
+                {
+                    if (span.Value.Start == writ.BCVWc)
+                    {
+                        rendering.HighlightSpans[span.Key] = (UInt16) BCVW.GetDistance(writ.BCVWc, span.Value.Until);
+                    }
+
+                    HighlightMatch match = span.Value;
+
+                    foreach (Highlight tag in match.Highlights.Values)
+                    {
+                        if ((tag.Coordinates == writ.BCVWc) && !rendering.Triggers.ContainsKey(span.Key))
+                            rendering.Triggers[span.Key] = tag.Feature;
+                    }
+                }
+            }
+            if (differenceRendering == true)
+            {
+                if (rendering.Modern != rendering.Text)
+                {
+                    rendering.Triggers[UInt32.MaxValue] = "Modernized";
+                    rendering.HighlightSpans[UInt32.MaxValue] = 1;
+                }
+            }
+            return rendering;
+        }
+
+        //
+        // afterwards //
+        // the *Rendering object can be serialized to Yaml or Json using YamlDotNet
+        // or //
+        // programatically converted to html
+        // or //
+        // programatically converted to markdown
+        // or //
+        // programatically converted to text
+        //
+        // These currently stubbed out methods to not really accomplish that vision
+        //
+        // Therefore, while Yaml and Json can be handled generically, we will also implement these functions:
+        public string RenderChapter(ChapterRendering rendering, QFormat.QFormatVal format)
+        {
+            switch (format)
+            {
+                case QFormat.QFormatVal.MD:   return this.RenderChapterAsMarkdown(rendering);
+                case QFormat.QFormatVal.TEXT: return this.RenderChapterAsText(rendering);
+                case QFormat.QFormatVal.HTML: return this.RenderChapterAsHtml(rendering);
+                case QFormat.QFormatVal.JSON: return string.Empty; // utilize YamlDotNet
+                case QFormat.QFormatVal.YAML: return string.Empty; // utilize YamlDotNet
+            }
+            return string.Empty;
+        }
+        private string RenderChapterAsMarkdown(ChapterRendering rendering)
         {
             return string.Empty;
         }
-        public string Render(TextWriter output, byte b, byte c, byte v, QFormat.QFormatVal format, QLexicalDisplay.QDisplayVal lex, Dictionary<BCVW, QueryTag> tags)
+        private string RenderChapterAsHtml(ChapterRendering rendering)
+        {
+            return string.Empty;
+        }
+        private string RenderChapterAsText(ChapterRendering rendering)
+        {
+            return string.Empty;
+        }
+        public string RenderVerse(SoloVerseRendering rendering, QFormat.QFormatVal format)
+        {
+            switch (format)
+            {
+                case QFormat.QFormatVal.MD:   return this.RenderVerseAsMarkdown(rendering);
+                case QFormat.QFormatVal.TEXT: return this.RenderVerseAsText(rendering);
+                case QFormat.QFormatVal.HTML: return this.RenderVerseAsHtml(rendering);
+                case QFormat.QFormatVal.JSON: return string.Empty; // utilize YamlDotNet
+                case QFormat.QFormatVal.YAML: return string.Empty; // utilize YamlDotNet
+            }
+            return string.Empty;
+        }
+        private string RenderVerseAsMarkdown(SoloVerseRendering rendering)
+        {
+            return string.Empty;
+        }
+        private string RenderVerseAsHtml(SoloVerseRendering rendering)
+        {
+            return string.Empty;
+        }
+        private string RenderVerseAsText(SoloVerseRendering rendering)
+        {
+            return string.Empty;
+        }
+
+        public string RenderVerseAsMarkdownTemporary(TextWriter output, byte b, byte c, byte v, QLexicalDisplay.QDisplayVal lex, Dictionary<BCVW, QueryTag> tags)
         {
             if (b >= 1 && b <= 66)
             {
@@ -83,7 +280,7 @@
                     {
                         output.Write(book.abbr4.ToString() + " " + c.ToString() + ':' + v.ToString());
                         var writ = ObjectTable.AVXObjects.Mem.Written.Slice((int)(book.writIdx + chapter.writIdx), chapter.writCnt).Span;
-                        int cnt = (int) chapter.writCnt;
+                        int cnt = (int)chapter.writCnt;
                         bool located = false;
                         for (int w = 0; w < cnt; /**/)
                         {
@@ -104,7 +301,7 @@
                                     output.Write(' ');
                                     output.Write(decoration);
 
-                                    byte previousPunctuation = (w > 0) ? writ[w-1].Punctuation : (byte)0;
+                                    byte previousPunctuation = (w > 0) ? writ[w - 1].Punctuation : (byte)0;
                                     bool s = entry.EndsWith("s", StringComparison.InvariantCultureIgnoreCase);
                                     StringBuilder token = new StringBuilder(entry);
                                     AVEngine.AddPunctuation(token, previousPunctuation, writ[w].Punctuation, s);
@@ -129,7 +326,6 @@
             }
             return string.Empty;
         }
-
         public AVEngine(string home, string sdk)
         {
             ObjectTable.SDK = sdk;
