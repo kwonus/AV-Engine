@@ -11,6 +11,7 @@
     using System.Text;
     using System.Collections.Generic;
     using System;
+    using AVSearch.Interfaces;
 
     public class AVEngine
     {
@@ -78,9 +79,9 @@
         // if ISettings.LexicalDisplay == Lexion_BOTH, then we treat it as ISettings.Lexion_AVX when spans is non null
         // otherwise, when ISettings.LexicalDisplay == Lexion_BOTH: this produces "side-by-side rendering
         // ISettings.Lexion_UNDEFINED is interpretted as ISettings.Lexion_AV
-        public ChapterRendering GetRendering(QLexicalDomain lex, byte b, byte c, Dictionary<UInt32, HighlightMatch>? matches = null, bool sideBySideRendering = false) 
+        public ChapterRendering GetRendering(byte b, byte c, Dictionary<UInt32, HighlightMatch>? matches = null, bool sideBySideRendering = false) 
         {
-            var rendering = new ChapterRendering(b, c, lex);
+            var rendering = new ChapterRendering(b, c);
             if (b >= 1 && b <= 66)
             {
                 var book = ObjectTable.AVXObjects.Mem.Book.Slice(b, 1).Span[0];
@@ -90,7 +91,7 @@
 
                     for (byte v = 1; v <= chapter.verseCnt; v++)
                     {
-                        VerseRendering vrend = new VerseRendering(v);
+                        VerseRendering vrend = new VerseRendering(b, c, v);
                         rendering.Verses[v] = vrend;
 
                         var writ = ObjectTable.AVXObjects.Mem.Written.Slice((int)(book.writIdx + chapter.writIdx), chapter.writCnt).Span;
@@ -124,9 +125,9 @@
         // if ISettings.LexicalDisplay == Lexion_BOTH, then we treat it as ISettings.Lexion_AVX when spans is non null
         // otherwise, when ISettings.LexicalDisplay == Lexion_BOTH: this produces "side-by-side rendering
         // ISettings.Lexion_UNDEFINED is interpretted as ISettings.Lexion_AV
-        public VerseRendering GetRendering(QLexicalDomain lex, byte b, byte c, byte v, Dictionary<UInt32, HighlightMatch>? matches = null)
+        public VerseRendering GetRendering(byte b, byte c, byte v, Dictionary<UInt32, HighlightMatch>? matches = null)
         {
-            var rendering = new VerseRendering(v);
+            var rendering = new VerseRendering(b, c, v);
             if (b >= 1 && b <= 66)
             {
                 var book = ObjectTable.AVXObjects.Mem.Book.Slice(b, 1).Span[0];
@@ -218,53 +219,133 @@
         // These currently stubbed out methods to not really accomplish that vision
         //
         // Therefore, while Yaml and Json can be handled generically, we will also implement these functions:
-        public string RenderChapter(ChapterRendering rendering, QFormat.QFormatVal format)
+        public bool RenderChapter(StringBuilder output, ChapterRendering rendering, ISettings settings, bool renderSideBySide = false)
         {
-            switch (format)
+            switch (settings.RenderingFormat)
             {
-                case QFormat.QFormatVal.MD:   return this.RenderChapterAsMarkdown(rendering);
-                case QFormat.QFormatVal.TEXT: return this.RenderChapterAsText(rendering);
-                case QFormat.QFormatVal.HTML: return this.RenderChapterAsHtml(rendering);
-                case QFormat.QFormatVal.JSON: return string.Empty; // utilize YamlDotNet
-                case QFormat.QFormatVal.YAML: return string.Empty; // utilize YamlDotNet
+                case ISettings.Formatting_MD:   return this.RenderChapterAsMarkdown(output, rendering, settings);
+                case ISettings.Formatting_TEXT: return this.RenderChapterAsText(output, rendering, settings);
+                case ISettings.Formatting_HTML: return this.RenderChapterAsHtml(output, rendering, settings);
+                case ISettings.Formatting_JSON: return this.RenderChapterAsJson(output, rendering, settings);
+                case ISettings.Formatting_YAML: return this.RenderChapterAsYaml(output, rendering, settings);
+            }
+            return false;
+        }
+        private bool RenderChapterAsMarkdown(StringBuilder output, ChapterRendering rendering, ISettings settings, bool renderSideBySide = false)
+        {
+            return false;
+        }
+        private bool RenderChapterAsHtml(StringBuilder output, ChapterRendering rendering, ISettings settings, bool renderSideBySide = false)
+        {
+            return false;
+        }
+        private bool RenderChapterAsText(StringBuilder output, ChapterRendering rendering, ISettings settings, bool renderSideBySide = false)
+        {
+            return false;
+        }
+        private bool RenderChapterAsJson(StringBuilder output, ChapterRendering rendering, ISettings settings, bool renderSideBySide = false)
+        {
+            return false;
+        }
+        private bool RenderChapterAsYaml(StringBuilder output, ChapterRendering rendering, ISettings settings, bool renderSideBySide = false)
+        {
+            return false;
+        }
+        public bool RenderVerse(StringBuilder output, VerseRendering rendering, ISettings settings)
+        {
+    
+            switch (settings.RenderingFormat)
+            {
+                case ISettings.Formatting_MD:   return this.RenderVerseAsMarkdown(output, rendering, settings);
+                case ISettings.Formatting_TEXT: return this.RenderVerseAsText(output, rendering, settings);
+                case ISettings.Formatting_HTML: return this.RenderVerseAsHtml(output, rendering, settings);
+                case ISettings.Formatting_JSON: return this.RenderVerseAsJson(output, rendering, settings);
+                case ISettings.Formatting_YAML: return this.RenderVerseAsYaml(output, rendering, settings);
+            }
+            return false;
+        }
+        public string RenderVerse(SoloVerseRendering rendering, ISettings settings)
+        {
+            StringBuilder output = new();
+
+            string result = string.Empty;
+            string label = rendering.BookAbbreviation4.Trim() + " " + rendering.ChapterNumber.ToString() + ':' + rendering.Coordinates.V.ToString();
+            switch (settings.RenderingFormat)
+            {
+                case ISettings.Formatting_MD:   output.Append("__");
+                                                output.Append(label);
+                                                output.Append("__ ");
+                                                this.RenderVerseAsMarkdown(output, rendering, settings);
+                                                return output.ToString();
+                case ISettings.Formatting_TEXT: output.Append(label);
+                                                output.Append(" ");
+                                                this.RenderVerseAsText(output, rendering, settings);
+                                                return output.ToString();          
+                case ISettings.Formatting_HTML: output.Append("<b>");
+                                                output.Append(label);
+                                                output.Append("</b> ");
+                                                this.RenderVerseAsHtml(output, rendering, settings); 
+                                                return output.ToString();
+                case ISettings.Formatting_JSON: this.RenderVerseAsJson(output, rendering, settings);
+                                                return output.ToString();
+                case ISettings.Formatting_YAML: this.RenderVerseAsYaml(output, rendering, settings);
+                                                return output.ToString();
             }
             return string.Empty;
         }
-        private string RenderChapterAsMarkdown(ChapterRendering rendering)
+        private bool RenderVerseAsMarkdown(StringBuilder output, VerseRendering rendering, ISettings settings)
         {
-            return string.Empty;
-        }
-        private string RenderChapterAsHtml(ChapterRendering rendering)
-        {
-            return string.Empty;
-        }
-        private string RenderChapterAsText(ChapterRendering rendering)
-        {
-            return string.Empty;
-        }
-        public string RenderVerse(SoloVerseRendering rendering, QFormat.QFormatVal format)
-        {
-            switch (format)
+            byte previousPunctuation = 0;
+            bool space = false;
+            foreach (WordRendering word in rendering.Words)
             {
-                case QFormat.QFormatVal.MD:   return this.RenderVerseAsMarkdown(rendering);
-                case QFormat.QFormatVal.TEXT: return this.RenderVerseAsText(rendering);
-                case QFormat.QFormatVal.HTML: return this.RenderVerseAsHtml(rendering);
-                case QFormat.QFormatVal.JSON: return string.Empty; // utilize YamlDotNet
-                case QFormat.QFormatVal.YAML: return string.Empty; // utilize YamlDotNet
+                bool bold = word.Triggers.Count > 0;
+                bool italics = (byte)(word.Punctuation & Punctuation.Italics) == Punctuation.Italics;
+
+                string decoration = bold ? (italics ? "***" : "**") : (italics ? "*" : string.Empty);
+
+                string entry = settings.RenderAsAV ? word.Text : word.Modern;
+                if (space)
+                    output.Append(' ');
+                else
+                    space = true;
+
+                output.Append(decoration);
+
+                bool s = entry.EndsWith("s", StringComparison.InvariantCultureIgnoreCase);
+                StringBuilder token = new StringBuilder(entry);
+                AVEngine.AddPunctuation(token, previousPunctuation, word.Punctuation, s);
+
+                output.Append(token.ToString());
+                output.Append(decoration);
+
+                previousPunctuation = word.Punctuation;
             }
-            return string.Empty;
+            return space;
         }
-        private string RenderVerseAsMarkdown(SoloVerseRendering rendering)
+        private bool RenderVerseAsHtml(StringBuilder output, VerseRendering rendering, ISettings settings)
         {
-            return string.Empty;
+            return false;
         }
-        private string RenderVerseAsHtml(SoloVerseRendering rendering)
+        private bool RenderVerseAsText(StringBuilder output, VerseRendering rendering, ISettings settings)
         {
-            return string.Empty;
+            return false;
         }
-        private string RenderVerseAsText(SoloVerseRendering rendering)
+        private bool RenderVerseAsJson(StringBuilder output, VerseRendering rendering, ISettings settings)
         {
-            return string.Empty;
+            return false;
+        }
+        private bool RenderVerseAsJson(StringBuilder output, SoloVerseRendering rendering, ISettings settings)
+        {
+            return false;
+        }
+        private bool RenderVerseAsYaml(StringBuilder output, VerseRendering rendering, ISettings settings)
+        {
+            return false;
+        }
+        private bool RenderVerseAsYaml(StringBuilder output, SoloVerseRendering rendering, ISettings settings)
+        {
+            return false;
         }
 
         public string RenderVerseAsMarkdownTemporary(TextWriter output, byte b, byte c, byte v, QLexicalDisplay.QDisplayVal lex, Dictionary<BCVW, QueryTag> tags)
