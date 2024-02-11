@@ -79,7 +79,7 @@
         // if ISettings.LexicalDisplay == Lexion_BOTH, then we treat it as ISettings.Lexion_AVX when spans is non null
         // otherwise, when ISettings.LexicalDisplay == Lexion_BOTH: this produces "side-by-side rendering
         // ISettings.Lexion_UNDEFINED is interpretted as ISettings.Lexion_AV
-        public ChapterRendering GetRendering(byte b, byte c, Dictionary<UInt32, HighlightMatch>? matches = null, bool sideBySideRendering = false) 
+        public ChapterRendering GetChapter(byte b, byte c, Dictionary<UInt32, QueryMatch> matches, bool sideBySideRendering = false) 
         {
             var rendering = new ChapterRendering(b, c);
             if (b >= 1 && b <= 66)
@@ -91,10 +91,10 @@
 
                     for (byte v = 1; v <= chapter.verseCnt; v++)
                     {
-                        VerseRendering vrend = new VerseRendering(b, c, v);
+                        var writ = ObjectTable.AVXObjects.Mem.Written.Slice((int)(book.writIdx + chapter.writIdx), chapter.writCnt).Span;
+                        VerseRendering vrend = new VerseRendering(writ[0].BCVWc);
                         rendering.Verses[v] = vrend;
 
-                        var writ = ObjectTable.AVXObjects.Mem.Written.Slice((int)(book.writIdx + chapter.writIdx), chapter.writCnt).Span;
                         int cnt = (int)chapter.writCnt;
                         bool located = false;
                         for (int w = 0; w < cnt; /**/)
@@ -103,7 +103,7 @@
                             {
                                 located = true;
 
-                                WordRendering wrend = this.GetRendering(book, chapter, v, writ[w], matches: matches, differenceRendering: sideBySideRendering);
+                                WordRendering wrend = this.GetWord(book, chapter, v, writ[w], matches: matches, differenceRendering: sideBySideRendering);
                                 vrend.Words[w] = wrend;
                                 w++;
                                 w++;
@@ -125,9 +125,10 @@
         // if ISettings.LexicalDisplay == Lexion_BOTH, then we treat it as ISettings.Lexion_AVX when spans is non null
         // otherwise, when ISettings.LexicalDisplay == Lexion_BOTH: this produces "side-by-side rendering
         // ISettings.Lexion_UNDEFINED is interpretted as ISettings.Lexion_AV
-        public VerseRendering GetRendering(byte b, byte c, byte v, Dictionary<UInt32, HighlightMatch>? matches = null)
+        public VerseRendering GetVerse(byte b, byte c, byte v, Dictionary<UInt32, QueryMatch>? matches)
         {
-            var rendering = new VerseRendering(b, c, v);
+            bool located = false;
+            VerseRendering rendering = new VerseRendering(0, 0, 0, 0);
             if (b >= 1 && b <= 66)
             {
                 var book = ObjectTable.AVXObjects.Mem.Book.Slice(b, 1).Span[0];
@@ -139,17 +140,28 @@
                     {
                         var writ = ObjectTable.AVXObjects.Mem.Written.Slice((int)(book.writIdx + chapter.writIdx), chapter.writCnt).Span;
                         int cnt = (int)chapter.writCnt;
-                        bool located = false;
-                        rendering.Words = new WordRendering[cnt];
+
+                        int i = 0;
                         for (int w = 0; w < cnt; /**/)
                         {
                             if (writ[w].BCVWc.V == v)
                             {
-                                located = true;
+                                if (!located)
+                                {
+                                    rendering = new VerseRendering(writ[w].BCVWc);
+                                    located = true;
+                                }
 
-                                WordRendering wrend = this.GetRendering(book, chapter, v, writ[w], matches);
-                                rendering.Words[w] = wrend;
-                                w++;
+                                if (i < rendering.Words.Length)
+                                {
+                                    WordRendering wrend = this.GetWord(book, chapter, v, writ[w], matches);
+                                    rendering.Words[i++] = wrend;
+                                    w++;
+                                }
+                                else
+                                {
+                                    break;
+                                }
                             }
                             else if (located)
                             {
@@ -165,7 +177,7 @@
             }
             return rendering;
         }
-        private WordRendering GetRendering(Book book, Chapter chapter, byte v, Written writ, Dictionary<UInt32, HighlightMatch>? matches = null, bool differenceRendering = false) // ISettings.Lexion_BOTH is interpretted as ISettings.Lexion_AVX // ISettings.Lexion_UNDEFINED is interpretted as ISettings.Lexion_AV
+        private WordRendering GetWord(Book book, Chapter chapter, byte v, Written writ, Dictionary<UInt32, QueryMatch> matches, bool differenceRendering = false) // ISettings.Lexion_BOTH is interpretted as ISettings.Lexion_AVX // ISettings.Lexion_UNDEFINED is interpretted as ISettings.Lexion_AV
         {
             WordRendering rendering = new();
             rendering.Coordinates = writ.BCVWc;
@@ -177,24 +189,22 @@
 
             var spans = matches.Where(tag => writ.BCVWc >= tag.Value.Start && writ.BCVWc <= tag.Value.Until);
 
-            if (matches != null)
+            foreach (var span in spans)
             {
-                foreach (var span in spans)
+                if (span.Value.Start == writ.BCVWc)
                 {
-                    if (span.Value.Start == writ.BCVWc)
-                    {
-                        rendering.HighlightSpans[span.Key] = (UInt16) BCVW.GetDistance(writ.BCVWc, span.Value.Until);
-                    }
+                    rendering.HighlightSpans[span.Key] = (UInt16) BCVW.GetDistance(writ.BCVWc, span.Value.Until);
+                }
 
-                    HighlightMatch match = span.Value;
+                QueryMatch match = span.Value;
 
-                    foreach (Highlight tag in match.Highlights.Values)
-                    {
-                        if ((tag.Coordinates == writ.BCVWc) && !rendering.Triggers.ContainsKey(span.Key))
-                            rendering.Triggers[span.Key] = tag.Feature;
-                    }
+                foreach (QueryTag tag in match.Highlights)
+                {
+                    if ((tag.Coordinates == writ.BCVWc) && !rendering.Triggers.ContainsKey(span.Key))
+                        rendering.Triggers[span.Key] = tag.Feature.Text;
                 }
             }
+
             if (differenceRendering == true)
             {
                 if (rendering.Modern != rendering.Text)
@@ -264,10 +274,8 @@
             }
             return false;
         }
-        public string RenderVerse(SoloVerseRendering rendering, ISettings settings)
+        public bool RenderVerseSolo(StringBuilder output, SoloVerseRendering rendering, ISettings settings)
         {
-            StringBuilder output = new();
-
             string result = string.Empty;
             string label = rendering.BookAbbreviation4.Trim() + " " + rendering.ChapterNumber.ToString() + ':' + rendering.Coordinates.V.ToString();
             switch (settings.RenderingFormat)
@@ -275,23 +283,22 @@
                 case ISettings.Formatting_MD:   output.Append("__");
                                                 output.Append(label);
                                                 output.Append("__ ");
-                                                this.RenderVerseAsMarkdown(output, rendering, settings);
-                                                return output.ToString();
+                                                return this.RenderVerseAsMarkdown(output, rendering, settings);
+
                 case ISettings.Formatting_TEXT: output.Append(label);
                                                 output.Append(" ");
-                                                this.RenderVerseAsText(output, rendering, settings);
-                                                return output.ToString();          
+                                                return this.RenderVerseAsText(output, rendering, settings);
+        
                 case ISettings.Formatting_HTML: output.Append("<b>");
                                                 output.Append(label);
                                                 output.Append("</b> ");
-                                                this.RenderVerseAsHtml(output, rendering, settings); 
-                                                return output.ToString();
-                case ISettings.Formatting_JSON: this.RenderVerseAsJson(output, rendering, settings);
-                                                return output.ToString();
-                case ISettings.Formatting_YAML: this.RenderVerseAsYaml(output, rendering, settings);
-                                                return output.ToString();
+                                                return this.RenderVerseAsHtml(output, rendering, settings); 
+
+                case ISettings.Formatting_JSON: return this.RenderVerseAsJson(output, rendering, settings);
+
+                case ISettings.Formatting_YAML: return this.RenderVerseAsYaml(output, rendering, settings);
             }
-            return string.Empty;
+            return false;
         }
         private bool RenderVerseAsMarkdown(StringBuilder output, VerseRendering rendering, ISettings settings)
         {
