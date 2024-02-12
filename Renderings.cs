@@ -49,7 +49,7 @@ namespace AVXFramework
     {
         public BCVW Coordinates;
         public WordRendering[] Words;
-
+ 
         public VerseRendering(byte b, byte c, byte v, byte wc)
         {
             this.Coordinates = new(b, c, v, wc);
@@ -66,10 +66,10 @@ namespace AVXFramework
         public BCVW Coordinates;
         public string Text;   // KJV
         public string Modern; // AVX
+        public bool Modernized { get => !this.Text.Equals(this.Modern, StringComparison.InvariantCultureIgnoreCase);  }
         public byte Punctuation;
         public Dictionary<UInt32, string> Triggers;       // <highlight-id, feature-match-string>
-        public Dictionary<UInt32, UInt16> HighlightSpans; // <highlight-id, span-length>
-
+ 
         public WordRendering()
         {
             this.Coordinates = new();

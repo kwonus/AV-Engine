@@ -103,7 +103,7 @@
                             {
                                 located = true;
 
-                                WordRendering wrend = this.GetWord(book, chapter, v, writ[w], matches: matches, differenceRendering: sideBySideRendering);
+                                WordRendering wrend = this.GetWord(book, chapter, v, writ[w], matches: matches);
                                 vrend.Words[w] = wrend;
                                 w++;
                                 w++;
@@ -125,7 +125,7 @@
         // if ISettings.LexicalDisplay == Lexion_BOTH, then we treat it as ISettings.Lexion_AVX when spans is non null
         // otherwise, when ISettings.LexicalDisplay == Lexion_BOTH: this produces "side-by-side rendering
         // ISettings.Lexion_UNDEFINED is interpretted as ISettings.Lexion_AV
-        public VerseRendering GetVerse(byte b, byte c, byte v, Dictionary<UInt32, QueryMatch>? matches)
+        public VerseRendering GetVerse(byte b, byte c, byte v, Dictionary<UInt32, QueryMatch> matches)
         {
             bool located = false;
             VerseRendering rendering = new VerseRendering(0, 0, 0, 0);
@@ -177,7 +177,7 @@
             }
             return rendering;
         }
-        private WordRendering GetWord(Book book, Chapter chapter, byte v, Written writ, Dictionary<UInt32, QueryMatch> matches, bool differenceRendering = false) // ISettings.Lexion_BOTH is interpretted as ISettings.Lexion_AVX // ISettings.Lexion_UNDEFINED is interpretted as ISettings.Lexion_AV
+        private WordRendering GetWord(Book book, Chapter chapter, byte v, Written writ, Dictionary<UInt32, QueryMatch> matches) // ISettings.Lexion_BOTH is interpretted as ISettings.Lexion_AVX // ISettings.Lexion_UNDEFINED is interpretted as ISettings.Lexion_AV
         {
             WordRendering rendering = new();
             rendering.Coordinates = writ.BCVWc;
@@ -185,32 +185,18 @@
             rendering.Modern = ObjectTable.AVXObjects.lexicon.GetLexModern(writ.WordKey);
             rendering.Punctuation = writ.Punctuation;
             rendering.Triggers = new();
-            rendering.HighlightSpans = new();
 
             var spans = matches.Where(tag => writ.BCVWc >= tag.Value.Start && writ.BCVWc <= tag.Value.Until);
 
             foreach (var span in spans)
             {
-                if (span.Value.Start == writ.BCVWc)
-                {
-                    rendering.HighlightSpans[span.Key] = (UInt16) BCVW.GetDistance(writ.BCVWc, span.Value.Until);
-                }
-
-                QueryMatch match = span.Value;
-
-                foreach (QueryTag tag in match.Highlights)
+                foreach (QueryTag tag in span.Value.Highlights)
                 {
                     if ((tag.Coordinates == writ.BCVWc) && !rendering.Triggers.ContainsKey(span.Key))
-                        rendering.Triggers[span.Key] = tag.Feature.Text;
-                }
-            }
-
-            if (differenceRendering == true)
-            {
-                if (rendering.Modern != rendering.Text)
-                {
-                    rendering.Triggers[UInt32.MaxValue] = "Modernized";
-                    rendering.HighlightSpans[UInt32.MaxValue] = 1;
+                    {
+                        UInt32 key = (UInt32)(rendering.Triggers.Count + 1);
+                        rendering.Triggers[key] = tag.Feature.Text;
+                    }
                 }
             }
             return rendering;
@@ -470,7 +456,7 @@
                                     statement.Context.AddHistory(item);
                                 }
                                 var results = statement.Commands.Execute();
-                                return (statement, results.query, results.ok, results.ok ? "ok" : "TO DO: Add error message") ;
+                                return (statement, results.query, results.ok, results.ok ? "ok" : "ERROR: Unexpected parsing error") ;
                             }
                             else
                             {
