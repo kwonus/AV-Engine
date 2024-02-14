@@ -231,36 +231,130 @@
         // These currently stubbed out methods to not really accomplish that vision
         //
         // Therefore, while Yaml and Json can be handled generically, we will also implement these functions:
-        public bool RenderChapter(StringBuilder output, ChapterRendering rendering, ISettings settings, bool renderSideBySide = false)
+        public bool RenderChapter(StringBuilder output, ChapterRendering rendering, ISettings settings)
         {
             switch (settings.RenderingFormat)
             {
                 case ISettings.Formatting_MD:   return this.RenderChapterAsMarkdown(output, rendering, settings);
                 case ISettings.Formatting_TEXT: return this.RenderChapterAsText(output, rendering, settings);
                 case ISettings.Formatting_HTML: return this.RenderChapterAsHtml(output, rendering, settings);
-                case ISettings.Formatting_JSON: return this.RenderChapterAsJson(output, rendering, settings);
-                case ISettings.Formatting_YAML: return this.RenderChapterAsYaml(output, rendering, settings);
+                case ISettings.Formatting_JSON: return this.RenderChapterAsJson(output, rendering);
+                case ISettings.Formatting_YAML: return this.RenderChapterAsYaml(output, rendering);
             }
             return false;
         }
-        private bool RenderChapterAsMarkdown(StringBuilder output, ChapterRendering rendering, ISettings settings, bool renderSideBySide = false)
+        public bool RenderChapterAsMarkdown(StringBuilder output, ChapterRendering rendering, ISettings settings)
         {
+            if (rendering.BookNumber >= 1 && rendering.BookNumber <= 66)
+            {
+                output.Append('#');
+                output.Append(rendering.BookName);
+                output.Append(' ');
+
+                var book = ObjectTable.AVXObjects.Mem.Book.Slice(rendering.BookNumber, 1).Span[0];
+
+                if (rendering.ChapterNumber >= 1 && rendering.ChapterNumber <= book.chapterCnt)
+                {
+                    output.AppendLine(rendering.ChapterNumber.ToString());
+
+                    var chapter = ObjectTable.AVXObjects.Mem.Chapter.Slice(book.chapterIdx + rendering.ChapterNumber - 1, 1).Span[0];
+
+                    for (byte v = 1; v <= chapter.verseCnt; v++)
+                    {
+                        output.Append("**");
+                        output.Append(v.ToString());
+                        output.Append("** ");
+                        this.RenderVerseAsMarkdown(output, rendering.Verses[(byte)(v-1)], settings);
+                    }
+                    return true;
+                }
+            }
             return false;
         }
-        private bool RenderChapterAsHtml(StringBuilder output, ChapterRendering rendering, ISettings settings, bool renderSideBySide = false)
+        public bool RenderChapterAsHtml(StringBuilder output, ChapterRendering rendering, ISettings settings, bool renderSideBySide = false)
         {
+            if (rendering.BookNumber >= 1 && rendering.BookNumber <= 66)
+            {
+                output.Append('#');
+                output.Append(rendering.BookName);
+                output.Append(' ');
+
+                var book = ObjectTable.AVXObjects.Mem.Book.Slice(rendering.BookNumber, 1).Span[0];
+
+                if (rendering.ChapterNumber >= 1 && rendering.ChapterNumber <= book.chapterCnt)
+                {
+                    output.AppendLine(rendering.ChapterNumber.ToString());
+
+                    var chapter = ObjectTable.AVXObjects.Mem.Chapter.Slice(book.chapterIdx + rendering.ChapterNumber - 1, 1).Span[0];
+
+                    for (byte v = 1; v <= chapter.verseCnt; v++)
+                    {
+                        string verse = v.ToString();
+                        output.Append("<span class=\"verse\" id=\"V");
+                        output.Append(verse);
+                        output.Append("\">");
+                        output.Append(verse);
+                        output.Append("</span> ");
+                        this.RenderVerseAsHtml(output, rendering.Verses[(byte)(v - 1)], settings);
+                    }
+                    return true;
+                }
+            }
             return false;
         }
-        private bool RenderChapterAsText(StringBuilder output, ChapterRendering rendering, ISettings settings, bool renderSideBySide = false)
+        public bool RenderChapterAsText(StringBuilder output, ChapterRendering rendering, ISettings settings)
         {
+            if (rendering.BookNumber >= 1 && rendering.BookNumber <= 66)
+            {
+                output.Append(rendering.BookName);
+                output.Append(' ');
+
+                var book = ObjectTable.AVXObjects.Mem.Book.Slice(rendering.BookNumber, 1).Span[0];
+
+                if (rendering.ChapterNumber >= 1 && rendering.ChapterNumber <= book.chapterCnt)
+                {
+                    output.AppendLine(rendering.ChapterNumber.ToString());
+
+                    var chapter = ObjectTable.AVXObjects.Mem.Chapter.Slice(book.chapterIdx + rendering.ChapterNumber - 1, 1).Span[0];
+
+                    for (byte v = 1; v <= chapter.verseCnt; v++)
+                    {
+                        output.Append(v.ToString());
+                        output.Append("\t");
+                        this.RenderVerseAsText(output, rendering.Verses[(byte)(v - 1)], settings);
+                    }
+                    return true;
+                }
+            }
             return false;
         }
-        private bool RenderChapterAsJson(StringBuilder output, ChapterRendering rendering, ISettings settings, bool renderSideBySide = false)
+        public bool RenderChapterAsJson(StringBuilder output, ChapterRendering rendering)
         {
+            try
+            {
+                var serializer = new YamlDotNet.Serialization.SerializerBuilder().JsonCompatible().Build();
+                string json = serializer.Serialize(rendering);
+                return true;
+            }
+            catch
+            {
+                ;
+            }
             return false;
         }
-        private bool RenderChapterAsYaml(StringBuilder output, ChapterRendering rendering, ISettings settings, bool renderSideBySide = false)
+        public bool RenderChapterAsYaml(StringBuilder output, ChapterRendering rendering)
         {
+            try
+            {
+                YamlDotNet.Serialization.Serializer serializer = new();
+                string yaml = serializer.Serialize(rendering);
+                output.Append(yaml);
+                return true;
+            }
+            catch
+            {
+                ;
+            }
             return false;
         }
         public bool RenderVerse(StringBuilder output, VerseRendering rendering, ISettings settings)
