@@ -63,15 +63,17 @@ namespace AVXFramework
     }
     public class WordRendering
     {
-        public BCVW Coordinates;
-        public string Text;   // KJV
-        public string Modern; // AVX
+        public required UInt32 WordKey;
+        public required BCVW Coordinates;
+        public required string Text;   // KJV
+        public required string Modern; // AVX
         public bool Modernized { get => !this.Text.Equals(this.Modern, StringComparison.InvariantCultureIgnoreCase);  }
-        public byte Punctuation;
-        public Dictionary<UInt32, string> Triggers;       // <highlight-id, feature-match-string>
+        public required byte Punctuation;
+        public required Dictionary<UInt32, string> Triggers;       // <highlight-id, feature-match-string>
  
         public WordRendering()
         {
+            this.WordKey = 0;
             this.Coordinates = new();
             this.Text = string.Empty;
             this.Modern = string.Empty;

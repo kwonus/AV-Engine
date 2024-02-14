@@ -12,6 +12,7 @@
     using System.Collections.Generic;
     using System;
     using AVSearch.Interfaces;
+    using YamlDotNet.Serialization;
 
     public class AVEngine
     {
@@ -24,18 +25,33 @@
 #else
         private AVQueryManager SearchEngine;
 #endif
-        private static void AddPunctuation(StringBuilder builder, ushort previousPunctuation, ushort currentPunctuation, bool s)
+        private static void ConditionallyMakePossessive(StringBuilder builder, ushort currentPunctuation, bool s)
+        {
+            bool posses = (currentPunctuation & Punctuation.Possessive) == Punctuation.Possessive;
+
+            if (posses)
+            {
+                if (!s)
+                    builder.Append("'s");
+                else
+                    builder.Append('\'');
+            }
+        }
+
+        private static void AddPrefixPunctuation(StringBuilder builder, ushort previousPunctuation, ushort currentPunctuation)
         {
             bool prevParen = (previousPunctuation & Punctuation.Parenthetical) != 0;
             bool thisParen = (currentPunctuation & Punctuation.Parenthetical) != 0;
 
             if (thisParen && !prevParen)
             {
-                builder.Insert(0, '(');
+                builder.Append('(');
             }
-
+        }
+        private static void AddPostfixPunctuation(StringBuilder builder, ushort currentPunctuation, bool? s = null)
+        {
             bool eparen  = (currentPunctuation & Punctuation.CloseParen) == Punctuation.CloseParen;
-            bool posses  = (currentPunctuation & Punctuation.Possessive) == Punctuation.Possessive;
+//          bool posses  = (currentPunctuation & Punctuation.Possessive) == Punctuation.Possessive;
             bool exclaim = (currentPunctuation & Punctuation.Clause) == Punctuation.Exclamatory;
             bool declare = (currentPunctuation & Punctuation.Clause) == Punctuation.Declarative;
             bool dash    = (currentPunctuation & Punctuation.Clause) == Punctuation.Dash;
@@ -44,12 +60,9 @@
             bool comma   = (currentPunctuation & Punctuation.Clause) == Punctuation.Comma;
             bool quest   = (currentPunctuation & Punctuation.Clause) == Punctuation.Interrogative;
 
-            if (posses)
+            if (s != null)
             {
-                if (!s)
-                    builder.Append("'s");
-                else
-                    builder.Append('\'');
+                ConditionallyMakePossessive(builder, currentPunctuation, s.Value);
             }
             if (eparen)
                 builder.Append(')');
@@ -175,17 +188,20 @@
                     }
                 }
             }
+            
             return rendering;
         }
         private WordRendering GetWord(Book book, Chapter chapter, byte v, Written writ, Dictionary<UInt32, QueryMatch> matches) // ISettings.Lexion_BOTH is interpretted as ISettings.Lexion_AVX // ISettings.Lexion_UNDEFINED is interpretted as ISettings.Lexion_AV
         {
-            WordRendering rendering = new();
-            rendering.Coordinates = writ.BCVWc;
-            rendering.Text = ObjectTable.AVXObjects.lexicon.GetLexDisplay(writ.WordKey);
-            rendering.Modern = ObjectTable.AVXObjects.lexicon.GetLexModern(writ.WordKey);
-            rendering.Punctuation = writ.Punctuation;
-            rendering.Triggers = new();
-
+            WordRendering rendering = new()
+            {
+                WordKey = writ.WordKey,
+                Coordinates = writ.BCVWc,
+                Text = ObjectTable.AVXObjects.lexicon.GetLexDisplay(writ.WordKey),
+                Modern = ObjectTable.AVXObjects.lexicon.GetLexModern(writ.WordKey),
+                Punctuation = writ.Punctuation,
+                Triggers = new()
+            };
             var spans = matches.Where(tag => writ.BCVWc >= tag.Value.Start && writ.BCVWc <= tag.Value.Until);
 
             foreach (var span in spans)
@@ -255,8 +271,8 @@
                 case ISettings.Formatting_MD:   return this.RenderVerseAsMarkdown(output, rendering, settings);
                 case ISettings.Formatting_TEXT: return this.RenderVerseAsText(output, rendering, settings);
                 case ISettings.Formatting_HTML: return this.RenderVerseAsHtml(output, rendering, settings);
-                case ISettings.Formatting_JSON: return this.RenderVerseAsJson(output, rendering, settings);
-                case ISettings.Formatting_YAML: return this.RenderVerseAsYaml(output, rendering, settings);
+                case ISettings.Formatting_JSON: return this.RenderVerseAsJson(output, rendering);
+                case ISettings.Formatting_YAML: return this.RenderVerseAsYaml(output, rendering);
             }
             return false;
         }
@@ -280,9 +296,9 @@
                                                 output.Append("</b> ");
                                                 return this.RenderVerseAsHtml(output, rendering, settings); 
 
-                case ISettings.Formatting_JSON: return this.RenderVerseAsJson(output, rendering, settings);
+                case ISettings.Formatting_JSON: return this.RenderVerseAsJson(output, rendering);
 
-                case ISettings.Formatting_YAML: return this.RenderVerseAsYaml(output, rendering, settings);
+                case ISettings.Formatting_YAML: return this.RenderVerseAsYaml(output, rendering);
             }
             return false;
         }
@@ -298,19 +314,20 @@
                 string decoration = bold ? (italics ? "***" : "**") : (italics ? "*" : string.Empty);
 
                 string entry = settings.RenderAsAV ? word.Text : word.Modern;
+                bool s = entry.EndsWith("s", StringComparison.InvariantCultureIgnoreCase);
+
                 if (space)
                     output.Append(' ');
                 else
                     space = true;
 
-                output.Append(decoration);
+                AVEngine.AddPrefixPunctuation(output, previousPunctuation, word.Punctuation);
 
-                bool s = entry.EndsWith("s", StringComparison.InvariantCultureIgnoreCase);
-                StringBuilder token = new StringBuilder(entry);
-                AVEngine.AddPunctuation(token, previousPunctuation, word.Punctuation, s);
-
-                output.Append(token.ToString());
                 output.Append(decoration);
+                output.Append(entry);
+                AVEngine.ConditionallyMakePossessive(output, word.Punctuation, s);
+                output.Append(decoration);
+                AVEngine.AddPostfixPunctuation(output, word.Punctuation);
 
                 previousPunctuation = word.Punctuation;
             }
@@ -318,87 +335,142 @@
         }
         private bool RenderVerseAsHtml(StringBuilder output, VerseRendering rendering, ISettings settings)
         {
-            return false;
+            byte previousPunctuation = 0;
+            bool space = false;
+            foreach (WordRendering word in rendering.Words)
+            {
+                bool bold = word.Triggers.Count > 0;
+                bool italics = (byte)(word.Punctuation & Punctuation.Italics) == Punctuation.Italics;
+
+                string entry = settings.RenderAsAV ? word.Text : word.Modern;
+                bool s = entry.EndsWith("s", StringComparison.InvariantCultureIgnoreCase);
+
+                if (space)
+                    output.Append(' ');
+                else
+                    space = true;
+
+                AVEngine.AddPrefixPunctuation(output, previousPunctuation, word.Punctuation);
+
+                if (bold)
+                    output.Append("<b>");
+                if (italics)
+                    output.Append("<em>");
+                output.Append("<span id=\"C");
+                output.Append(word.Coordinates.elements.ToString());
+                output.Append("\" class=\"W");
+                output.Append(word.WordKey.ToString());
+                output.Append("\" diff=\"");
+                output.Append(word.Modernized ? "true" : "false");
+                output.Append("\">");
+                output.Append(entry);
+                AVEngine.ConditionallyMakePossessive(output, word.Punctuation, s);
+                output.Append("</span>");
+                if (italics)
+                    output.Append("</em>");
+                if (bold)
+                    output.Append("</b>");
+
+                AVEngine.AddPostfixPunctuation(output, word.Punctuation);
+
+                previousPunctuation = word.Punctuation;
+            }
+            return space;
         }
         private bool RenderVerseAsText(StringBuilder output, VerseRendering rendering, ISettings settings)
         {
-            return false;
-        }
-        private bool RenderVerseAsJson(StringBuilder output, VerseRendering rendering, ISettings settings)
-        {
-            return false;
-        }
-        private bool RenderVerseAsJson(StringBuilder output, SoloVerseRendering rendering, ISettings settings)
-        {
-            return false;
-        }
-        private bool RenderVerseAsYaml(StringBuilder output, VerseRendering rendering, ISettings settings)
-        {
-            return false;
-        }
-        private bool RenderVerseAsYaml(StringBuilder output, SoloVerseRendering rendering, ISettings settings)
-        {
-            return false;
-        }
-
-        public string RenderVerseAsMarkdownTemporary(TextWriter output, byte b, byte c, byte v, QLexicalDisplay.QDisplayVal lex, Dictionary<BCVW, QueryTag> tags)
-        {
-            if (b >= 1 && b <= 66)
+            byte previousPunctuation = 0;
+            bool space = false;
+            foreach (WordRendering word in rendering.Words)
             {
-                var book = ObjectTable.AVXObjects.Mem.Book.Slice(b, 1).Span[0];
-                if (c >= 1 && c <= book.chapterCnt)
-                {
-                    var chapter = ObjectTable.AVXObjects.Mem.Chapter.Slice(book.chapterIdx + c - 1, 1).Span[0];
+                bool bold = word.Triggers.Count > 0;
+                bool italics = (byte)(word.Punctuation & Punctuation.Italics) == Punctuation.Italics;
 
-                    if (v >= 1 && v <= chapter.verseCnt)
-                    {
-                        output.Write(book.abbr4.ToString() + " " + c.ToString() + ':' + v.ToString());
-                        var writ = ObjectTable.AVXObjects.Mem.Written.Slice((int)(book.writIdx + chapter.writIdx), chapter.writCnt).Span;
-                        int cnt = (int)chapter.writCnt;
-                        bool located = false;
-                        for (int w = 0; w < cnt; /**/)
-                        {
-                            if (writ[w].BCVWc.V == v)
-                            {
-                                located = true;
-                                bool bold = tags.ContainsKey(writ[w].BCVWc);
-                                bool italics = (byte)(writ[w].Punctuation & Punctuation.Italics) == Punctuation.Italics;
+                string entry = settings.RenderAsAV ? word.Text : word.Modern;
+                bool s = entry.EndsWith("s", StringComparison.InvariantCultureIgnoreCase);
 
-                                string decoration = bold ? (italics ? "***" : "**") : (italics ? "*" : string.Empty);
+                if (space)
+                    output.Append(' ');
+                else
+                    space = true;
 
-                                string entry = lex == QLexicalDisplay.QDisplayVal.AV
-                                    ? ObjectTable.AVXObjects.lexicon.GetLexDisplay(writ[w].WordKey)
-                                    : ObjectTable.AVXObjects.lexicon.GetLexDisplay(writ[w].WordKey);
+                AVEngine.AddPrefixPunctuation(output, previousPunctuation, word.Punctuation);
 
-                                if (entry != null)
-                                {
-                                    output.Write(' ');
-                                    output.Write(decoration);
+                if (bold)
+                    output.Append('*');
+                if (italics)
+                    output.Append('[');
+                output.Append(entry);
+                AVEngine.ConditionallyMakePossessive(output, word.Punctuation, s);
+                if (italics)
+                    output.Append(']');
+                if (bold)
+                    output.Append('*');
 
-                                    byte previousPunctuation = (w > 0) ? writ[w - 1].Punctuation : (byte)0;
-                                    bool s = entry.EndsWith("s", StringComparison.InvariantCultureIgnoreCase);
-                                    StringBuilder token = new StringBuilder(entry);
-                                    AVEngine.AddPunctuation(token, previousPunctuation, writ[w].Punctuation, s);
+                AVEngine.AddPostfixPunctuation(output, word.Punctuation);
 
-                                    output.Write(token.ToString());
-                                    output.Write(decoration);
-                                }
-                                w++;
-                            }
-                            else if (located)
-                            {
-                                break;
-                            }
-                            else
-                            {
-                                w += writ[w].BCVWc.WC;
-                            }
-                        }
-                        output.WriteLine();
-                    }
-                }
+                previousPunctuation = word.Punctuation;
             }
-            return string.Empty;
+            return space;
+        }
+        private bool RenderVerseAsJson(StringBuilder output, VerseRendering rendering)
+        {
+            try
+            {
+                var serializer = new YamlDotNet.Serialization.SerializerBuilder().JsonCompatible().Build();
+                string json = serializer.Serialize(rendering);
+                return true;
+            }
+            catch
+            {
+                ;
+            }
+            return false;
+        }
+        private bool RenderVerseAsJson(StringBuilder output, SoloVerseRendering rendering)
+        {
+            try
+            {
+                var serializer = new YamlDotNet.Serialization.SerializerBuilder().JsonCompatible().Build();
+                string json = serializer.Serialize(rendering);
+                output.Append(json);
+                return true;
+            }
+            catch
+            {
+                ;
+            }
+            return false;
+        }
+        private bool RenderVerseAsYaml(StringBuilder output, VerseRendering rendering)
+        {
+            try
+            {
+                YamlDotNet.Serialization.Serializer serializer = new();
+                string yaml = serializer.Serialize(rendering);
+                output.Append(yaml);
+                return true;
+            }
+            catch
+            {
+                ;
+            }
+            return false;
+        }
+        private bool RenderVerseAsYaml(StringBuilder output, SoloVerseRendering rendering)
+        {
+            try
+            {
+                YamlDotNet.Serialization.Serializer serializer = new();
+                string yaml = serializer.Serialize(rendering);
+                output.Append(yaml);
+                return true;
+            }
+            catch
+            {
+                ;
+            }
+            return false;
         }
         public AVEngine(string home, string sdk)
         {
