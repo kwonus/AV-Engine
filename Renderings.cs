@@ -1,14 +1,8 @@
-﻿using AVXLib;
-using AVXLib.Memory;
-using Blueprint.Model.Implicit;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace AVXFramework
+﻿namespace AVXFramework
 {
+    using AVXLib;
+    using AVXLib.Memory;
+
     public class ChapterRendering
     {
         public string BookName;

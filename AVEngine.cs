@@ -104,32 +104,8 @@
 
                     for (byte v = 1; v <= chapter.verseCnt; v++)
                     {
-                        var writ = ObjectTable.AVXObjects.Mem.Written.Slice((int)(book.writIdx + chapter.writIdx), chapter.writCnt).Span;
-                        VerseRendering vrend = new VerseRendering(writ[0].BCVWc);
+                        VerseRendering vrend = this.GetVerse(b, c, v, matches);
                         rendering.Verses[v] = vrend;
-
-                        int cnt = (int)chapter.writCnt;
-                        bool located = false;
-                        for (int w = 0; w < cnt; /**/)
-                        {
-                            if (writ[w].BCVWc.V == v)
-                            {
-                                located = true;
-
-                                WordRendering wrend = this.GetWord(book, chapter, v, writ[w], matches: matches);
-                                vrend.Words[w] = wrend;
-                                w++;
-                                w++;
-                            }
-                            else if (located)
-                            {
-                                break;
-                            }
-                            else
-                            {
-                                w += writ[w].BCVWc.WC;
-                            }
-                        }
                     }
                 }
             }
@@ -264,20 +240,20 @@
                         output.Append("**");
                         output.Append(v.ToString());
                         output.Append("** ");
-                        this.RenderVerseAsMarkdown(output, rendering.Verses[(byte)(v-1)], settings);
+                        this.RenderVerseAsMarkdown(output, rendering.Verses[v], settings);
                     }
                     return true;
                 }
             }
             return false;
         }
-        public bool RenderChapterAsHtml(StringBuilder output, ChapterRendering rendering, ISettings settings, bool renderSideBySide = false)
+        public bool RenderChapterAsHtml(StringBuilder output, ChapterRendering rendering, ISettings settings)
         {
             if (rendering.BookNumber >= 1 && rendering.BookNumber <= 66)
             {
-                output.Append('#');
+                output.Append("<b>");
                 output.Append(rendering.BookName);
-                output.Append(' ');
+                output.Append("</b><br/>");
 
                 var book = ObjectTable.AVXObjects.Mem.Book.Slice(rendering.BookNumber, 1).Span[0];
 
@@ -295,11 +271,15 @@
                         output.Append("\">");
                         output.Append(verse);
                         output.Append("</span> ");
-                        this.RenderVerseAsHtml(output, rendering.Verses[(byte)(v - 1)], settings);
+                        this.RenderVerseAsHtml(output, rendering.Verses[v], settings);
                     }
                     return true;
                 }
             }
+            return false;
+        }
+        public bool RenderChapterSideBySideAsHtml(StringBuilder output, ChapterRendering rendering)
+        {
             return false;
         }
         public bool RenderChapterAsText(StringBuilder output, ChapterRendering rendering, ISettings settings)
@@ -321,7 +301,7 @@
                     {
                         output.Append(v.ToString());
                         output.Append("\t");
-                        this.RenderVerseAsText(output, rendering.Verses[(byte)(v - 1)], settings);
+                        this.RenderVerseAsText(output, rendering.Verses[v], settings);
                     }
                     return true;
                 }
