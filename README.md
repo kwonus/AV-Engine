@@ -117,7 +117,7 @@ AV-Console is available as of February 2024. This implementation is depicted in 
 
 **Figure 4-1**: Initial availability of AV-Console is in Q1/2024 [revision #4214; this console-app is a build-it-yourself release]
 
-I plan to release AV-Bible (Windows desktop [WPF] application) in the Microsoft Store in the second or quarter of 2024. That release will gut the existing search engine of AV-Bible-2021.  A refactored AV-2024 will include a fully functional implementation of AVX-Framework. Figure 4-2, identifies this an additional release expected after AV-Bible-2024 becomes available in Q2.
+I plan to release AV-Bible (Windows desktop [WPF] application) in the Microsoft Store in the second quarter of 2024. That release will gut the existing search engine of AV-Bible-2021.  A refactored AV-Bible-2024 will include a fully functional implementation of AVX-Framework. Figure 4-2, identifies this an additional release expected after AV-Bible-2024 becomes available in Q2.
 
 ![](AVX-Roadmap-2024.png)
 
