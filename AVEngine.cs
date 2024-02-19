@@ -174,7 +174,7 @@
                 WordKey = writ.WordKey,
                 Coordinates = writ.BCVWc,
                 Text = ObjectTable.AVXObjects.lexicon.GetLexDisplay(writ.WordKey),
-                Modern = ObjectTable.AVXObjects.lexicon.GetLexModern(writ.WordKey),
+                Modern = ObjectTable.AVXObjects.lexicon.GetLexModern(writ.WordKey, writ.Lemma),
                 Punctuation = writ.Punctuation,
                 Triggers = new()
             };
@@ -546,7 +546,7 @@
             }
             return false;
         }
-        public AVEngine(string home, string sdk)
+        public AVEngine(string sdk)
         {
             ObjectTable.SDK = sdk;
             this.QuelleModel = null;
