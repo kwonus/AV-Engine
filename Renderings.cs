@@ -2,6 +2,7 @@
 {
     using AVXLib;
     using AVXLib.Memory;
+    using Blueprint.Blue;
 
     public class ChapterRendering
     {
@@ -59,6 +60,8 @@
     {
         public required UInt32 WordKey;
         public required BCVW Coordinates;
+        public required PNPOS PnPos;
+        public required string NuPos;
         public required string Text;   // KJV
         public required string Modern; // AVX
         public bool Modernized { get => !this.Text.Equals(this.Modern, StringComparison.InvariantCultureIgnoreCase);  }
@@ -73,6 +76,8 @@
             this.Modern = string.Empty;
             this.Punctuation = 0;
             this.Triggers = new();
+            this.PnPos = new();
+            this.NuPos = string.Empty;
         }
     }
     public class SoloVerseRendering: VerseRendering

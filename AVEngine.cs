@@ -176,6 +176,8 @@
                 Text = ObjectTable.AVXObjects.lexicon.GetLexDisplay(writ.WordKey),
                 Modern = ObjectTable.AVXObjects.lexicon.GetLexModern(writ.WordKey, writ.Lemma),
                 Punctuation = writ.Punctuation,
+                PnPos = QPartOfSpeech.GetPnPos(writ.pnPOS12),
+                NuPos = FiveBitEncoding.DecodePOS(writ.POS32),
                 Triggers = new()
             };
             var spans = matches.Where(tag => writ.BCVWc >= tag.Value.Start && writ.BCVWc <= tag.Value.Until);
