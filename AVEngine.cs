@@ -13,6 +13,7 @@
     using System;
     using AVSearch.Interfaces;
     using YamlDotNet.Serialization;
+    using BlueprintBlue.Model.Results;
 
     public class AVEngine
     {
@@ -573,7 +574,7 @@
         {
             this.Release();
         }
-        public (QStatement? stmt, QueryResult? find, bool ok, string message) Execute(string command)
+        public (QStatement? stmt, QueryResult? search, QExplicitResult? singleton, bool ok, string message) Execute(string command)
         {
             var pinshot = this.QuelleParser.Parse(command);
             if (pinshot.root != null)
@@ -588,8 +589,10 @@
                         {
                             if (statement.Singleton != null)
                             {
+                                QExplicitCommand ston = statement.Singleton;
                                 var result = statement.Singleton.Execute();
-                                return (statement, null, result.ok, result.message);
+                                var singleton = QExplicitResult.Create(ston, statement);
+                                return (statement, null, singleton, result.ok, result.message);
                             }
                             else if (statement.Commands != null)
                             {
@@ -604,11 +607,11 @@
                                     statement.Context.AddHistory(item);
                                 }
                                 var results = statement.Commands.Execute();
-                                return (statement, results.query, results.ok, results.ok ? "ok" : "ERROR: Unexpected parsing error") ;
+                                return (statement, results.query, null, results.ok, results.ok ? "ok" : "ERROR: Unexpected parsing error") ;
                             }
                             else
                             {
-                                return (statement, null, false, "Internal Error: Unexpected blueprint encountered.");
+                                return (statement, null, null, false, "Internal Error: Unexpected blueprint encountered.");
                             }
                         }
                         else
@@ -616,25 +619,25 @@
                             if (statement.Errors.Count > 0)
                             {
                                 var errors = string.Join("; ", statement.Errors);
-                                return (statement, null, false, errors);
+                                return (statement, null, null, false, errors);
                             }
                             else
                             {
-                                return (statement, null, false, "Query was invalid, but the error list was empty.");
+                                return (statement, null, null, false, "Query was invalid, but the error list was empty.");
                             }
                         }
                     }
                     else
                     {
-                        return (statement, null, false, "Query was invalid.");
+                        return (statement, null, null, false, "Query was invalid.");
                     }
                 }
                 else
                 {
-                    return (null, null, false, pinshot.root.error);
+                    return (null, null, null, false, pinshot.root.error);
                 }
             }
-            return (null, null, false, "Unable to parse the statement.");
+            return (null, null, null, false, "Unable to parse the statement.");
         }
     }
 }
