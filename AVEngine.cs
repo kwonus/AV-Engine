@@ -20,6 +20,7 @@
         private QStatement? QuelleModel;
         private PinshotLib QuelleParser;
         private readonly Guid ClientId;
+        public static string Data { get; private set; } = @"C:\src\Digital-AV\omega\AVX-Omega.data";
 
 #if USE_NATIVE_LIBRARIES
         private NativeStatement SearchEngine;
@@ -549,9 +550,9 @@
             }
             return false;
         }
-        public AVEngine(string sdk)
+        public AVEngine()
         {
-            ObjectTable.SDK = sdk;
+            ObjectTable.SDK = AVEngine.Data;
             this.QuelleModel = null;
             this.QuelleParser = new();
             this.ClientId = Guid.NewGuid();
@@ -592,6 +593,7 @@
                                 QExplicitCommand ston = statement.Singleton;
                                 var result = statement.Singleton.Execute();
                                 var singleton = QExplicitResult.Create(ston, statement);
+                                var DEBUG_response = singleton.GetResponse();
                                 return (statement, null, singleton, result.ok, result.message);
                             }
                             else if (statement.Commands != null)
@@ -600,10 +602,10 @@
                                 {
                                     if (segment.MacroLabel != null)
                                     {
-                                        ExpandableMacro macro = new ExpandableMacro(segment, segment.MacroLabel.Label);
+                                        ExpandableMacro macro = new ExpandableMacro(segment, segment.MacroLabel.Label, partial: !segment.MacroLabel.Full);
                                         statement.Context.AddMacro(macro);
                                     }
-                                    ExpandableHistory item = new ExpandableHistory(segment, (UInt64)(statement.Commands.Context.History.Count));
+                                    ExpandableHistory item = new ExpandableHistory(segment, (UInt64)(statement.Commands.Context.History.Count), partial:false);
                                     statement.Context.AddHistory(item);
                                 }
                                 var results = statement.Commands.Execute();
