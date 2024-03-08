@@ -14,6 +14,7 @@
     using AVSearch.Interfaces;
     using YamlDotNet.Serialization;
     using BlueprintBlue.Model.Results;
+    using System.IO;
 
     public class AVEngine
     {
@@ -590,7 +591,7 @@
                         {
                             if (statement.Singleton != null)
                             {
-                                QExplicitCommand ston = statement.Singleton;
+                                QSingleton ston = statement.Singleton;
                                 var result = statement.Singleton.Execute();
                                 var singleton = QExplicitResult.Create(ston, statement);
                                 var DEBUG_response = singleton.GetResponse();
@@ -598,16 +599,15 @@
                             }
                             else if (statement.Commands != null)
                             {
-                                foreach (var segment in statement.Commands.Segments)
+                                var segment = statement.Commands.SelectionCriteria;
+                                if (statement.Commands.MacroDirective != null && segment != null)
                                 {
-                                    if (segment.MacroLabel != null)
-                                    {
-                                        ExpandableMacro macro = new ExpandableMacro(segment, segment.MacroLabel.Label, partial: !segment.MacroLabel.Full);
-                                        statement.Context.AddMacro(macro);
-                                    }
-                                    ExpandableHistory item = new ExpandableHistory(segment, (UInt64)(statement.Commands.Context.History.Count), partial:false);
-                                    statement.Context.AddHistory(item);
+                                    ExpandableMacro macro = new ExpandableMacro(command, segment, statement.Commands.MacroDirective.Label, MacroComponents.FullMacro);
+                                    statement.Context.AddMacro(macro);
                                 }
+                                ExpandableHistory item = new ExpandableHistory(command, segment, (UInt64)(statement.Commands.Context.History.Count), MacroComponents.FullMacro);
+                                statement.Context.AddHistory(item);
+
                                 var results = statement.Commands.Execute();
                                 return (statement, results.query, null, results.ok, results.ok ? "ok" : "ERROR: Unexpected parsing error") ;
                             }
