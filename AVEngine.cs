@@ -602,10 +602,10 @@
                                 var segment = statement.Commands.SelectionCriteria;
                                 if (statement.Commands.MacroDirective != null && segment != null)
                                 {
-                                    ExpandableMacro macro = new ExpandableMacro(command, segment, statement.Commands.MacroDirective.Label, MacroComponents.FullMacro);
+                                    ExpandableMacro macro = new ExpandableMacro(command, segment, statement.Commands.MacroDirective.Label);
                                     statement.Context.AddMacro(macro);
                                 }
-                                ExpandableHistory item = new ExpandableHistory(command, segment, (UInt64)(statement.Commands.Context.History.Count), MacroComponents.FullMacro);
+                                ExpandableHistory item = new ExpandableHistory(command, segment, (UInt64)(statement.Commands.Context.History.Count));
                                 statement.Context.AddHistory(item);
 
                                 var results = statement.Commands.Execute();
