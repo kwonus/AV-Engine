@@ -21,7 +21,43 @@
         private QStatement? QuelleModel;
         private PinshotLib QuelleParser;
         private readonly Guid ClientId;
-        public static string Data { get; private set; } = @"C:\src\Digital-AV\omega\AVX-Omega.data";
+
+        private static string? _OmegaFile = null;
+        public static string Data
+        {
+            get
+            {
+                if (_OmegaFile != null)
+                    return _OmegaFile;
+
+                string cwd = Directory.GetCurrentDirectory();
+                for (string omega = Path.Combine(cwd, "Data", "AVX-Omega.data"); omega.Length > @"X:\Data\AVX-Omega.data".Length; omega = Path.Combine(cwd, "Data", "AVX-Omega.data"))
+                {
+                    if (File.Exists(omega))
+                    {
+                        _OmegaFile = omega;
+                        return omega;
+                    }
+                    var parent = Directory.GetParent(cwd);
+                    if (parent == null)
+                        break;
+                    cwd = parent.FullName;
+                }
+                for (string omega = Path.Combine(cwd, "AVX-Omega.data"); omega.Length > @"X:\AVX-Omega.data".Length; omega = Path.Combine(cwd, "AVX-Omega.data"))
+                {
+                    if (File.Exists(omega))
+                    {
+                        _OmegaFile = omega;
+                        return omega;
+                    }
+                    var parent = Directory.GetParent(cwd);
+                    if (parent == null)
+                        break;
+                    cwd = parent.FullName;
+                }
+                return (@"C:\src\Digital-AV\omega\AVX-Omega.data");
+            }
+        }
 
 #if USE_NATIVE_LIBRARIES
         private NativeStatement SearchEngine;
