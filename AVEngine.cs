@@ -645,7 +645,7 @@
                                 statement.Context.AddHistory(item);
 
                                 var results = statement.Commands.Execute();
-                                return (statement, results.query, null, results.ok, results.ok ? "ok" : "ERROR: Unexpected parsing error") ;
+                                return (statement, results.query, null, results.ok != SelectionResultType.InvalidStatement, results.ok != SelectionResultType.InvalidStatement ? "ok" : "ERROR: Unexpected parsing error") ;
                             }
                             else
                             {
