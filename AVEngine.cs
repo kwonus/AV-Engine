@@ -5,20 +5,17 @@
     using AVSearch;
     using AVXLib;
     using AVSearch.Model.Results; 
-    using Blueprint.Model.Implicit;
     using AVXLib.Memory;
     using static AVXLib.Framework.Numerics;
     using System.Text;
     using System.Collections.Generic;
     using System;
     using AVSearch.Interfaces;
-    using YamlDotNet.Serialization;
     using BlueprintBlue.Model.Results;
     using System.IO;
 
     public class AVEngine
     {
-        private QStatement? QuelleModel;
         private PinshotLib QuelleParser;
         private readonly Guid ClientId;
 
@@ -590,7 +587,6 @@
         public AVEngine()
         {
             ObjectTable.SDK = AVEngine.Data;
-            this.QuelleModel = null;
             this.QuelleParser = new();
             this.ClientId = Guid.NewGuid();
 
