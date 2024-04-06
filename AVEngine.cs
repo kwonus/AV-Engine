@@ -11,7 +11,6 @@
     using System.Collections.Generic;
     using System;
     using AVSearch.Interfaces;
-    using BlueprintBlue.Model.Results;
     using System.IO;
 
     public class AVEngine
@@ -608,7 +607,7 @@
         {
             this.Release();
         }
-        public (QStatement? stmt, QueryResult? search, QExplicitResult? singleton, bool ok, string message) Execute(string command)
+        public (QStatement? stmt, QueryResult? search, bool ok, string message) Execute(string command)
         {
             var pinshot = this.QuelleParser.Parse(command);
             if (pinshot.root != null)
@@ -625,9 +624,7 @@
                             {
                                 QSingleton ston = statement.Singleton;
                                 var result = statement.Singleton.Execute();
-                                var singleton = QExplicitResult.Create(ston, statement);
-                                var DEBUG_response = singleton.GetResponse();
-                                return (statement, null, singleton, result.ok, result.message);
+                                return (statement, null, result.ok, result.message);
                             }
                             else if (statement.Commands != null)
                             {
@@ -635,17 +632,17 @@
                                 if (statement.Commands.MacroDirective != null && segment != null)
                                 {
                                     ExpandableMacro macro = new ExpandableMacro(command, segment, statement.Commands.MacroDirective.Label);
-                                    statement.Context.AddMacro(macro);
+                                    QContext.AddMacro(macro);
                                 }
-                                ExpandableHistory item = new ExpandableHistory(command, segment, (UInt64)(statement.Commands.Context.History.Count));
+                                ExpandableHistory item = new ExpandableHistory(command, segment, (UInt64)(QContext.History.Count));
                                 statement.Context.AddHistory(item);
 
                                 var results = statement.Commands.Execute();
-                                return (statement, results.query, null, results.ok != SelectionResultType.InvalidStatement, results.ok != SelectionResultType.InvalidStatement ? "ok" : "ERROR: Unexpected parsing error") ;
+                                return (statement, results.query, results.ok != SelectionResultType.InvalidStatement, results.ok != SelectionResultType.InvalidStatement ? "ok" : "ERROR: Unexpected parsing error") ;
                             }
                             else
                             {
-                                return (statement, null, null, false, "Internal Error: Unexpected blueprint encountered.");
+                                return (statement, null, false, "Internal Error: Unexpected blueprint encountered.");
                             }
                         }
                         else
@@ -653,25 +650,25 @@
                             if (statement.Errors.Count > 0)
                             {
                                 var errors = string.Join("; ", statement.Errors);
-                                return (statement, null, null, false, errors);
+                                return (statement, null, false, errors);
                             }
                             else
                             {
-                                return (statement, null, null, false, "Query was invalid, but the error list was empty.");
+                                return (statement, null, false, "Query was invalid, but the error list was empty.");
                             }
                         }
                     }
                     else
                     {
-                        return (statement, null, null, false, "Query was invalid.");
+                        return (statement, null, false, "Query was invalid.");
                     }
                 }
                 else
                 {
-                    return (null, null, null, false, pinshot.root.error);
+                    return (null, null, false, pinshot.root.error);
                 }
             }
-            return (null, null, null, false, "Unable to parse the statement.");
+            return (null, null, false, "Unable to parse the statement.");
         }
     }
 }
