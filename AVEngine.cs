@@ -632,10 +632,10 @@
                                 if (statement.Commands.MacroDirective != null && segment != null)
                                 {
                                     ExpandableMacro macro = new ExpandableMacro(command, segment, statement.Commands.MacroDirective.Label);
-                                    QContext.AddMacro(macro);
+                                    macro.Serialize();
                                 }
-                                ExpandableHistory item = new ExpandableHistory(command, segment, (UInt64)(QContext.History.Count));
-                                statement.Context.AddHistory(item);
+                                ExpandableHistory item = new ExpandableHistory(command, segment);
+                                item.Serialize();
 
                                 var results = statement.Commands.Execute();
                                 return (statement, results.query, results.ok != SelectionResultType.InvalidStatement, results.ok != SelectionResultType.InvalidStatement ? "ok" : "ERROR: Unexpected parsing error") ;
