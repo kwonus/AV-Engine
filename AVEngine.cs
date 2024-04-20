@@ -583,6 +583,7 @@
             }
             return false;
         }
+        public static AVEngine? SELF { get; private set; } = null;
         public AVEngine()
         {
             ObjectTable.SDK = AVEngine.Data;
@@ -594,7 +595,8 @@
 #else
             this.SearchEngine = new();
 #endif        
-    }
+            AVEngine.SELF = this;
+        }
     public void Release()
         {
 #if USE_NATIVE_LIBRARIES
@@ -607,11 +609,13 @@
         {
             this.Release();
         }
-        public (QStatement? stmt, QueryResult? search, bool ok, string message) Execute(string command)
+        public (QStatement? stmt, QueryResult? search, bool ok, DirectiveResultType directive, string message) Execute(string command)
         {
             var pinshot = this.QuelleParser.Parse(command);
             if (pinshot.root != null)
             {
+                DirectiveResultType directive = DirectiveResultType.NotApplicable;
+
                 if (string.IsNullOrWhiteSpace(pinshot.root.error))
                 {
                     QStatement statement = QStatement.Create(pinshot.root);
@@ -624,25 +628,105 @@
                             {
                                 QSingleton ston = statement.Singleton;
                                 var result = statement.Singleton.Execute();
-                                return (statement, null, result.ok, result.message);
+                                return (statement, null, result.ok, directive, result.message);
                             }
                             else if (statement.Commands != null)
                             {
                                 var segment = statement.Commands.SelectionCriteria;
-                                if (statement.Commands.MacroDirective != null && segment != null)
+                                if (statement.Commands.MacroDirective != null)
                                 {
-                                    ExpandableMacro macro = new ExpandableMacro(command, segment, statement.Commands.MacroDirective.Label);
-                                    macro.Serialize();
+                                    if (segment != null)
+                                    {
+                                        ExpandableMacro macro = new ExpandableMacro(command, segment, statement.Commands.MacroDirective.Label);
+                                        macro.Serialize();
+                                        directive = DirectiveResultType.MacroCreated;
+                                    }
+                                    else
+                                    {
+                                        directive = DirectiveResultType.MacroCreationFailed;
+                                    }
                                 }
                                 ExpandableHistory item = new ExpandableHistory(command, segment);
                                 item.Serialize();
 
                                 var results = statement.Commands.Execute();
-                                return (statement, results.query, results.ok != SelectionResultType.InvalidStatement, results.ok != SelectionResultType.InvalidStatement ? "ok" : "ERROR: Unexpected parsing error") ;
+                                if (directive == DirectiveResultType.NotApplicable)
+                                {
+                                    directive = results.directive;
+                                    if (directive == DirectiveResultType.ExportReady && statement.Commands.ExportDirective != null && statement.Commands.Results != null)
+                                    {
+                                        var export = statement.Commands.ExportDirective;
+
+                                        if ((results.ok == SelectionResultType.ScopeOnlyResults) && statement.Commands.ExportDirective.ScopeOnlyExport)
+                                        {
+                                            foreach (AVSearch.Model.Expressions.ScopingFilter scope in from bk in item.Scope.Values orderby bk.Book select bk)
+                                            {
+                                                byte b = scope.Book;
+                                                export[b] = new();
+
+                                                foreach (var c in from ch in scope.Chapters orderby ch select ch)
+                                                {
+                                                    export[b][c] = new();
+                                                }
+                                            }
+                                        }
+                                        else if ((results.ok == SelectionResultType.SearchResults && results.query.Expression != null) && !statement.Commands.ExportDirective.ScopeOnlyExport)
+                                        {
+                                            foreach (QueryBook book in from bk in results.query.Expression.Books where bk.Value.Matches.Count > 0 orderby bk.Key select bk.Value)
+                                            {
+                                                byte b = book.BookNum;
+                                                if (!export.ContainsKey(b))
+                                                    export[b] = new();
+                                                var BOOK = ObjectTable.AVXObjects.Mem.Book.Slice((int)b, 1).Span[0];
+                                                var CHAP = ObjectTable.AVXObjects.Mem.Chapter.Slice(BOOK.chapterIdx, BOOK.chapterCnt).Span;
+                                                var writ = ObjectTable.AVXObjects.Mem.Written.Slice((int)BOOK.writIdx, (int)BOOK.writCnt).Span;
+
+                                                foreach (var match in from m in book.Matches.Values orderby m.Start.V select m)
+                                                {
+                                                    byte v;
+                                                    byte c;
+
+                                                    for (int n = 1; n <= 2; n++)
+                                                    {
+                                                        if (n == 1)
+                                                        {
+                                                            v = match.Start.V;
+                                                            c = match.Start.C;
+                                                        }
+                                                        else
+                                                        {
+                                                            v = match.Until.V;
+                                                            c = match.Until.C;
+                                                        }
+                                                        if (!export[b].ContainsKey(c))
+                                                            export[b][c] = new();
+
+                                                        if (!export[b][c].ContainsKey(v))
+                                                        {
+                                                            export[b][c][v] = new();
+
+                                                            UInt32 w = CHAP[c - 1].writIdx;
+                                                            for (/**/; writ[(int)w].BCVWc.V < v; w++)
+                                                                ;
+                                                            for (/**/; writ[(int)w].BCVWc.V == v; w++)
+                                                            {
+                                                                WordFeatures word = new(writ[(int)w], book.Matches);
+                                                                export[b][c][v].Add(word);
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                        directive = statement.Commands.ExportDirective.Update();
+                                    }
+                                }
+
+                                return (statement, results.query, results.ok != SelectionResultType.InvalidStatement, directive, results.ok != SelectionResultType.InvalidStatement ? "ok" : "ERROR: Unexpected parsing error") ;
                             }
                             else
                             {
-                                return (statement, null, false, "Internal Error: Unexpected blueprint encountered.");
+                                return (statement, null, false, directive, "Internal Error: Unexpected blueprint encountered.");
                             }
                         }
                         else
@@ -650,25 +734,25 @@
                             if (statement.Errors.Count > 0)
                             {
                                 var errors = string.Join("; ", statement.Errors);
-                                return (statement, null, false, errors);
+                                return (statement, null, false, directive, errors);
                             }
                             else
                             {
-                                return (statement, null, false, "Query was invalid, but the error list was empty.");
+                                return (statement, null, false, directive, "Query was invalid, but the error list was empty.");
                             }
                         }
                     }
                     else
                     {
-                        return (statement, null, false, "Query was invalid.");
+                        return (statement, null, false, directive, "Query was invalid.");
                     }
                 }
                 else
                 {
-                     return (null, null, false, pinshot.root.error);
+                     return (null, null, false, directive, pinshot.root.error);
                 }
             }
-            return (null, null, false, "Unable to parse the statement.");
+            return (null, null, false, DirectiveResultType.NotApplicable, "Unable to parse the statement.");
         }
     }
 }
