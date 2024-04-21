@@ -653,71 +653,9 @@
                                 if (directive == DirectiveResultType.NotApplicable)
                                 {
                                     directive = results.directive;
-                                    if (directive == DirectiveResultType.ExportReady && statement.Commands.ExportDirective != null && statement.Commands.Results != null)
+                                    if (directive == DirectiveResultType.ExportReady && statement.Commands.ExportDirective != null)
                                     {
-                                        var export = statement.Commands.ExportDirective;
-
-                                        if ((results.ok == SelectionResultType.ScopeOnlyResults) && statement.Commands.ExportDirective.ScopeOnlyExport)
-                                        {
-                                            foreach (AVSearch.Model.Expressions.ScopingFilter scope in from bk in item.Scope.Values orderby bk.Book select bk)
-                                            {
-                                                byte b = scope.Book;
-                                                export[b] = new();
-
-                                                foreach (var c in from ch in scope.Chapters orderby ch select ch)
-                                                {
-                                                    export[b][c] = new();
-                                                }
-                                            }
-                                        }
-                                        else if ((results.ok == SelectionResultType.SearchResults && results.query.Expression != null) && !statement.Commands.ExportDirective.ScopeOnlyExport)
-                                        {
-                                            foreach (QueryBook book in from bk in results.query.Expression.Books where bk.Value.Matches.Count > 0 orderby bk.Key select bk.Value)
-                                            {
-                                                byte b = book.BookNum;
-                                                if (!export.ContainsKey(b))
-                                                    export[b] = new();
-                                                var BOOK = ObjectTable.AVXObjects.Mem.Book.Slice((int)b, 1).Span[0];
-                                                var CHAP = ObjectTable.AVXObjects.Mem.Chapter.Slice(BOOK.chapterIdx, BOOK.chapterCnt).Span;
-                                                var writ = ObjectTable.AVXObjects.Mem.Written.Slice((int)BOOK.writIdx, (int)BOOK.writCnt).Span;
-
-                                                foreach (var match in from m in book.Matches.Values orderby m.Start.V select m)
-                                                {
-                                                    byte v;
-                                                    byte c;
-
-                                                    for (int n = 1; n <= 2; n++)
-                                                    {
-                                                        if (n == 1)
-                                                        {
-                                                            v = match.Start.V;
-                                                            c = match.Start.C;
-                                                        }
-                                                        else
-                                                        {
-                                                            v = match.Until.V;
-                                                            c = match.Until.C;
-                                                        }
-                                                        if (!export[b].ContainsKey(c))
-                                                            export[b][c] = new();
-
-                                                        if (!export[b][c].ContainsKey(v))
-                                                        {
-                                                            export[b][c][v] = new();
-
-                                                            UInt32 w = CHAP[c - 1].writIdx;
-                                                            for (/**/; writ[(int)w].BCVWc.V < v; w++)
-                                                                ;
-                                                            for (/**/; writ[(int)w].BCVWc.V == v; w++)
-                                                            {
-                                                                WordFeatures word = new(writ[(int)w], book.Matches);
-                                                                export[b][c][v].Add(word);
-                                                            }
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        }
+                                        statement.Commands.ExportDirective.Merge(item.Scope.Values);
                                         directive = statement.Commands.ExportDirective.Update();
                                     }
                                 }
