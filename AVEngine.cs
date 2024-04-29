@@ -646,10 +646,9 @@
                                         directive = DirectiveResultType.MacroCreationFailed;
                                     }
                                 }
-                                ExpandableHistory item = new ExpandableHistory(command, segment);
-                                item.Serialize();
-
                                 var results = statement.Commands.Execute();
+                                ExpandableHistory item = new ExpandableHistory(command, segment);
+
                                 if (directive == DirectiveResultType.NotApplicable)
                                 {
                                     directive = results.directive;
@@ -659,7 +658,13 @@
                                         directive = statement.Commands.ExportDirective.Update();
                                     }
                                 }
-
+                                if (directive != DirectiveResultType.ExportSuccessful
+                                || statement.Commands == null
+                                || statement.Commands.ExportDirective == null
+                                || (statement.Commands.ExportDirective.CreationMode != FileCreateMode.Streaming))
+                                {
+                                    item.Serialize();
+                                }
                                 return (statement, results.query, results.ok != SelectionResultType.InvalidStatement, directive, results.ok != SelectionResultType.InvalidStatement ? "ok" : "ERROR: Unexpected parsing error") ;
                             }
                             else
