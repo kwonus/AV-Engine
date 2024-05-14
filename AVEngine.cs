@@ -54,6 +54,83 @@
                 return (@"C:\src\Digital-AV\omega\AVX-Omega.data");
             }
         }
+        private static char[] splitters = ['_', '&', '+', ' ', '@'];
+        private static string? _HelpFolder = null;
+        public static string GetHelpFile(string request)
+        {
+            string[] topics = request.Split(splitters, StringSplitOptions.RemoveEmptyEntries);
+
+            foreach (string topic in topics)
+            {
+                switch (topic.ToLower())
+                {
+                    case "selection":
+                    case "criteria":
+                    case "search":
+                    case "expression":
+                    case "find":
+                    case "scope":
+                    case "scoping":
+                    case "filter": return Path.Combine(HelpFolder, "index-selection.html");
+
+                    case "ye":
+                    case "thee":
+                    case "thou":
+                    case "thy":
+                    case "early":
+                    case "kjv":
+                    case "english": return Path.Combine(HelpFolder, "index-language.html");
+
+                    case "settings":
+                    case "assign":
+                    case "set":
+                    case "clear":
+                    case "get":
+                    case "use": return Path.Combine(HelpFolder, "index-settings.html");
+
+                    case "macro":
+                    case "history":
+                    case "macros":
+                    case "tags":
+                    case "tagging":
+                    case "apply":
+                    case "delete":
+                    case "review": return Path.Combine(HelpFolder, "index-hashtags.html");
+
+                    case "application": return Path.Combine(HelpFolder, "index-application.html");
+
+                    case "output":
+                    case "print":
+                    case "export": return Path.Combine(HelpFolder, "index-export.html");
+
+                    case "system": return Path.Combine(HelpFolder, "index-system.html");
+                }
+            }
+            return Path.Combine(HelpFolder, "index.html");
+        }
+        public static string HelpFolder
+        {
+            get
+            {
+                if (_HelpFolder != null)
+                    return _HelpFolder;
+
+                string cwd = System.AppDomain.CurrentDomain.BaseDirectory;
+                for (string help = Path.Combine(cwd, "Help"); help.Length > @"X:\Help".Length; help = Path.Combine(cwd, "Help"))
+                {
+                    if (Directory.Exists(help))
+                    {
+                        _HelpFolder = help;
+                        return help;
+                    }
+                    var parent = Directory.GetParent(cwd);
+                    if (parent == null)
+                        break;
+                    cwd = parent.FullName;
+                }
+                return (@"C:\Program Files\AV-Bible\Help");
+            }
+        }
 
 #if USE_NATIVE_LIBRARIES
         private NativeStatement SearchEngine;
