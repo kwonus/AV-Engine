@@ -117,15 +117,15 @@ AV-Console is available as of February 2024. This implementation is depicted in 
 
 **Figure 4-1**: Initial availability of AV-Console is in Q1/2024 [revision #4214; this console-app is a build-it-yourself release]
 
-I plan to release AV-Bible (Windows desktop [WPF] application) in the Microsoft Store in the second quarter of 2024. That release will gut the existing search engine of AV-Bible-2021.  A refactored AV-Bible-2024 will include a fully functional implementation of AVX-Framework. Figure 4-2, identifies this an additional release expected after AV-Bible-2024 becomes available in Q2.
+AV-Bible (Windows desktop [WPF] application) will be available in the Microsoft Store before the end of 2024. That release will gut the existing search engine of AV-Bible-2021 (pre-release MSI version is available now, upon request).  The refactored 2024 version of AV-Bible-2024 includes a fully functional implementation of AVX-Framework. Figure 4-2, identifies the roadmap of releases release for 2024 and 2025.
 
 ![](AVX-Roadmap-2024.png)
 
-**Figure 4-2**: Deployment Roadmap for AV-Bible and related artifacts in CY2024  [revision #4214]
+**Figure 4-2**: Deployment Roadmap for AV-Bible and related artifacts in CY2024 and CY2025 [revision #4616]
 
 ### Implementation Status
 
-All blue boxes are DLL libraries. Green boxes represent applications. Work will commence on the dark-gray boxes some time after AV-Bible-2024 is deployed to the Microsoft Store.  It's helpful to have this pic as a roadmap. As you can see, AVX-Framework is a dependency for all apps on the architectural roadmap.
+All blue boxes are DLL libraries. AV-Bible-2024, the Green box), will be released first. Shortly following that, the AV-Bible addin for Microsoft Word will be released (the two dark-gray boxes work together to provide search and reference capability directly inside of Microsoft Word. These two executables work in tandem to provide this functionality).  AV-Bible-We is not expected to be released until late 2025.
 
 All source-code can be found at https://github.com/kwonus. 
 
