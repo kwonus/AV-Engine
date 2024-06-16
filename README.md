@@ -125,7 +125,7 @@ AV-Bible (Windows desktop [WPF] application) will be available in the Microsoft 
 
 ### Implementation Status
 
-All blue boxes are DLL libraries. AV-Bible-2024, the Green box), will be released first. Shortly following that, the AV-Bible addin for Microsoft Word will be released (the two dark-gray boxes work together to provide search and reference capability directly inside of Microsoft Word. These two executables work in tandem to provide this functionality).  AV-Bible-We is not expected to be released until late 2025.
+All blue boxes are DLL libraries. AV-Bible-2024, the Green box), will be released first. Shortly following that, the AV-Bible addin for Microsoft Word will be released (the two dark-gray boxes work together to provide search and reference capability directly inside of Microsoft Word. These two executables work in tandem to provide this functionality).  AV-Bible-Web is not expected to be released until late 2025.
 
 All source-code can be found at https://github.com/kwonus. 
 
