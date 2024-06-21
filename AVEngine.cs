@@ -545,7 +545,7 @@
                 if (italics)
                     output.Append("<em>");
                 output.Append("<span id=\"C");
-                output.Append(word.Coordinates.elements.ToString());
+                output.Append(word.Coordinates.AsString());
                 output.Append("\" class=\"W");
                 output.Append(word.WordKey.ToString());
                 output.Append("\" diff=\"");
