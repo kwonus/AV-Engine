@@ -23,9 +23,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Blacklight.Controls.Wpf", "
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AV-API", "..\AV-API\AV-API.csproj", "{25714C8B-B277-434E-8AAA-A380D51113A6}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AV-Bible-Addin-X64", "..\AVX-Word-Addin\AV-Bible-Addin-X64.csproj", "{60FD9236-8674-4A48-8792-E5D9AB111D40}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AV-Bible-Addin", "..\AVX-Word-Addin\AV-Bible-Addin.csproj", "{60FD9236-8674-4A48-8792-E5D9AB111D40}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AV-Service", "..\AV-Service\AV-Service.csproj", "{F09E438E-A9CD-428E-B422-A19635155409}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AV-Service", "..\AV-Service\AV-Service.csproj", "{F09E438E-A9CD-428E-B422-A19635155409}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
