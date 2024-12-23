@@ -67,7 +67,7 @@ Evidenced by Figure 1, serialization is used for parameters when crossing from C
 | **NUPhone** *([github.com/kwonus/NUPhone]())*<br/>[./PhonemeEmbeddings](https://github.com/kwonus/NUPhone) | main   | .Net 8                                             | C#       |
 | **AV-Bible** *(https://github.com/kwonus/AVBible)*           | omega  | Windows / .Net 8 / WPF                             | C#       |
 | **AV-Bible-Addin** *([github.com/kwonus/AV-Bible-Addin](https://github.com/kwonus/AV-Bible-Addin))*<br/>*identified in roadmap below as AV-Word* | main   | Windows / .Net 8 / WPF                             | C#       |
-| **AV-Data-Manager** *([github.com/kwonus/AV-Data-Manager](https://github.com/kwonus/AV-Data-Manager)))*<br/>*this is a helper application for AV-Bible-Addin; not depicted in roadmap* | main   | Windows / .Net 4 / WPF<br/>+ Microsoft/Office VSTO | C#       |
+| **AV-Data-Manager** *([github.com/kwonus/AV-Data-Manager](https://github.com/kwonus/AV-Data-Manager))*<br/>*this is a helper application for AV-Bible-Addin; not depicted in roadmap* | main   | Windows / .Net 4 / WPF<br/>+ Microsoft/Office VSTO | C#       |
 
 **Figure 2**: AVX-Framework input and output definition and repository details [rev #3C12]
 
