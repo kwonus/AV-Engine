@@ -18,6 +18,68 @@
         private PinshotLib QuelleParser;
         private readonly Guid ClientId;
 
+        private static string GetProgramDirDefault(string collection, string file)
+        {
+            var folders = new string[] { "AV-Bible", "Digital-AV", "DigitalAV" };
+            var roots = new string[0];
+            try
+            {
+                roots = new string[] { Directory.GetDirectoryRoot(Directory.GetCurrentDirectory()), @"C:\", @"D:\", @"E:\", @"F:\" };
+            }
+            catch
+            {
+                roots = new string[] { @"C:\", @"D:\", @"E:\", @"F:\" };
+            }
+            foreach (string root in roots)
+            {
+                foreach (string folder in folders)
+                {
+                    string candidate = Path.Combine(root, "Program Files", folder, collection, file);
+                    if (File.Exists(candidate))
+                    {
+                        return candidate;
+                    }
+                }
+            }
+            foreach (string root in roots)
+            {
+                foreach (string folder in folders)
+                {
+                    string candidate = Path.Combine(root, "Program Files (x86)", folder, collection, file);
+                    if (File.Exists(candidate))
+                    {
+                        return candidate;
+                    }
+                }
+            }
+            return String.Empty;
+        }
+        private static string GetProgramDirDefault(string collection) // same function, but for folders
+        {
+            var folders = new string[] { "AV-Bible", "Digital-AV", "DigitalAV" };
+            var roots = new string[0];
+            try
+            {
+                roots = new string[] { Directory.GetDirectoryRoot(Directory.GetCurrentDirectory()), @"C:\", @"D:\", @"E:\", @"F:\" };
+            }
+            catch
+            {
+                roots = new string[] { @"C:\", @"D:\", @"E:\", @"F:\" };
+            }
+            foreach (string root in roots)
+            {
+                foreach (string folder in folders)
+                {
+                    string candidate = Path.Combine(root, "Program Files", folder, collection);
+                    if (Directory.Exists(candidate))
+                    {
+                        return candidate;
+                    }
+                }
+            }
+            return String.Empty;
+        }
+
         private static string? _OmegaFile = null;
         public static string Data
         {
@@ -51,7 +113,8 @@
                         break;
                     cwd = parent.FullName;
                 }
-                return (@"C:\src\Digital-AV\omega\AVX-Omega.data");
+                _OmegaFile = GetProgramDirDefault("Data", "AVX-Omega.data");
+                return _OmegaFile;
             }
         }
         private static char[] splitters = ['_', '&', '+', ' ', '@'];
@@ -128,7 +191,8 @@
                         break;
                     cwd = parent.FullName;
                 }
-                return (@"C:\Program Files\AV-Bible\Help");
+                _HelpFolder = GetProgramDirDefault("Help");
+                return _HelpFolder;
             }
         }
 
