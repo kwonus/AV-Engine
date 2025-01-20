@@ -12,6 +12,7 @@
     using System;
     using AVSearch.Interfaces;
     using System.IO;
+    using static System.Net.WebRequestMethods;
 
     public class AVEngine
     {
@@ -21,6 +22,17 @@
         private static string GetProgramDirDefault(string collection, string file)
         {
             var folders = new string[] { "AV-Bible", "Digital-AV", "DigitalAV" };
+
+            foreach (string folder in folders)
+            {
+                string appdata = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
+                string candidate = Path.Combine(appdata, "Local", "Programs", folder, collection, file);
+                if (System.IO.File.Exists(candidate))
+                {
+                    return candidate;
+                }
+            }
+
             var roots = new string[0];
             try
             {
@@ -30,23 +42,25 @@
             {
                 roots = new string[] { @"C:\", @"D:\", @"E:\", @"F:\" };
             }
+
             foreach (string root in roots)
             {
                 foreach (string folder in folders)
                 {
                     string candidate = Path.Combine(root, "Program Files", folder, collection, file);
-                    if (File.Exists(candidate))
+                    if (System.IO.File.Exists(candidate))
                     {
                         return candidate;
                     }
                 }
             }
+
             foreach (string root in roots)
             {
                 foreach (string folder in folders)
                 {
                     string candidate = Path.Combine(root, "Program Files (x86)", folder, collection, file);
-                    if (File.Exists(candidate))
+                    if (System.IO.File.Exists(candidate))
                     {
                         return candidate;
                     }
@@ -57,6 +71,17 @@
         private static string GetProgramDirDefault(string collection) // same function, but for folders
         {
             var folders = new string[] { "AV-Bible", "Digital-AV", "DigitalAV" };
+
+            foreach (string folder in folders)
+            {
+                string appdata = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
+                string candidate = Path.Combine(appdata, "Local", "Programs", folder, collection);
+                if (Directory.Exists(candidate))
+                {
+                    return candidate;
+                }
+            }
+
             var roots = new string[0];
             try
             {
@@ -66,11 +91,24 @@
             {
                 roots = new string[] { @"C:\", @"D:\", @"E:\", @"F:\" };
             }
+
             foreach (string root in roots)
             {
                 foreach (string folder in folders)
                 {
                     string candidate = Path.Combine(root, "Program Files", folder, collection);
+                    if (Directory.Exists(candidate))
+                    {
+                        return candidate;
+                    }
+                }
+            }
+
+            foreach (string root in roots)
+            {
+                foreach (string folder in folders)
+                {
+                    string candidate = Path.Combine(root, "Program Files (x86)", folder, collection);
                     if (Directory.Exists(candidate))
                     {
                         return candidate;
@@ -89,9 +127,9 @@
                     return _OmegaFile;
 
                 string cwd = Directory.GetCurrentDirectory();
-                for (string omega = Path.Combine(cwd, "Data", "AVX-Omega.data"); omega.Length > @"X:\Data\AVX-Omega.data".Length; omega = Path.Combine(cwd, "Data", "AVX-Omega.data"))
+                for (string omega = Path.Combine(cwd, "Digital-AV", "AVX-Omega.data"); omega.Length > @"X:\Digital-AV\AVX-Omega.data".Length; omega = Path.Combine(cwd, "Digital-AV", "AVX-Omega.data"))
                 {
-                    if (File.Exists(omega))
+                    if (System.IO.File.Exists(omega))
                     {
                         _OmegaFile = omega;
                         return omega;
@@ -101,9 +139,36 @@
                         break;
                     cwd = parent.FullName;
                 }
+                cwd = Directory.GetCurrentDirectory();
+                for (string omega = Path.Combine(cwd, "AV-Bible", "Digital-AV", "AVX-Omega.data"); omega.Length > @"X:\Digital-AV\AVX-Omega.data".Length; omega = Path.Combine(cwd, "AV-Bible", "Digital-AV", "AVX-Omega.data"))
+                {
+                    if (System.IO.File.Exists(omega))
+                    {
+                        _OmegaFile = omega;
+                        return omega;
+                    }
+                    var parent = Directory.GetParent(cwd);
+                    if (parent == null)
+                        break;
+                    cwd = parent.FullName;
+                }
+                cwd = Directory.GetCurrentDirectory();
+                for (string omega = Path.Combine(cwd, "AVBible", "Digital-AV", "AVX-Omega.data"); omega.Length > @"X:\Digital-AV\AVX-Omega.data".Length; omega = Path.Combine(cwd, "AVBible", "Digital-AV", "AVX-Omega.data"))
+                {
+                    if (System.IO.File.Exists(omega))
+                    {
+                        _OmegaFile = omega;
+                        return omega;
+                    }
+                    var parent = Directory.GetParent(cwd);
+                    if (parent == null)
+                        break;
+                    cwd = parent.FullName;
+                }
+                cwd = Directory.GetCurrentDirectory();
                 for (string omega = Path.Combine(cwd, "AVX-Omega.data"); omega.Length > @"X:\AVX-Omega.data".Length; omega = Path.Combine(cwd, "AVX-Omega.data"))
                 {
-                    if (File.Exists(omega))
+                    if (System.IO.File.Exists(omega))
                     {
                         _OmegaFile = omega;
                         return omega;
@@ -113,13 +178,13 @@
                         break;
                     cwd = parent.FullName;
                 }
-                _OmegaFile = GetProgramDirDefault("Data", "AVX-Omega.data");
+                _OmegaFile = GetProgramDirDefault("Digital-AV", "AVX-Omega.data");
                 return _OmegaFile;
             }
         }
-        private static char[] splitters = ['_', '&', '+', ' ', '@'];
+        public static readonly char[] splitters = ['_', '&', '+', ' ', '@'];
         private static string? _HelpFolder = null;
-        public static string GetHelpFile(string request)
+        public static string GetHelpFile(string request, bool asFlowDoc = false)
         {
             string[] topics = request.Split(splitters, StringSplitOptions.RemoveEmptyEntries);
 
@@ -127,6 +192,10 @@
             {
                 switch (topic.ToLower())
                 {
+                    case "search-for-truth":
+                    case "s4t":
+                    case "grammar": return asFlowDoc ? Path.Combine(HelpFolder, "AV-Bible-S4T.md") : Path.Combine(HelpFolder, "index.html");
+
                     case "selection":
                     case "criteria":
                     case "search":
@@ -134,7 +203,7 @@
                     case "find":
                     case "scope":
                     case "scoping":
-                    case "filter": return Path.Combine(HelpFolder, "index-selection.html");
+                    case "filter": return asFlowDoc ? Path.Combine(HelpFolder, "selection.md") : Path.Combine(HelpFolder, "index-selection.html");
 
                     case "ye":
                     case "thee":
@@ -142,34 +211,38 @@
                     case "thy":
                     case "early":
                     case "kjv":
-                    case "english": return Path.Combine(HelpFolder, "index-language.html");
+                    case "language":
+                    case "english": return asFlowDoc ? Path.Combine(HelpFolder, "language.md") : Path.Combine(HelpFolder, "index-language.html");
 
                     case "settings":
                     case "assign":
                     case "set":
                     case "clear":
                     case "get":
-                    case "use": return Path.Combine(HelpFolder, "index-settings.html");
+                    case "use": return asFlowDoc ? Path.Combine(HelpFolder, "settings.md") : Path.Combine(HelpFolder, "index-settings.html");
 
                     case "macro":
                     case "history":
                     case "macros":
                     case "tags":
+                    case "hashtag":
                     case "tagging":
                     case "apply":
                     case "delete":
-                    case "review": return Path.Combine(HelpFolder, "index-hashtags.html");
+                    case "review": return asFlowDoc ? Path.Combine(HelpFolder, "hashtags.md") : Path.Combine(HelpFolder, "index-hashtags.html");
 
-                    case "application": return Path.Combine(HelpFolder, "index-application.html");
+                    case "application":
+                    case "app": return asFlowDoc ? Path.Combine(HelpFolder, "application.md") : Path.Combine(HelpFolder, "index-application.html");
 
                     case "output":
                     case "print":
-                    case "export": return Path.Combine(HelpFolder, "index-export.html");
+                    case "export": return asFlowDoc ? Path.Combine(HelpFolder, "export.md") : Path.Combine(HelpFolder, "index-export.html");
 
-                    case "system": return Path.Combine(HelpFolder, "index-system.html");
+                    case "system":
+                    case "command": return asFlowDoc ? Path.Combine(HelpFolder, "system.md") : Path.Combine(HelpFolder, "index-system.html");
                 }
             }
-            return Path.Combine(HelpFolder, "index.html");
+            return asFlowDoc ? Path.Combine(HelpFolder, "application.md") : Path.Combine(HelpFolder, "index.html");
         }
         public static string HelpFolder
         {
