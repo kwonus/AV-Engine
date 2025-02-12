@@ -58,14 +58,14 @@ Evidenced by Figure 1, serialization is used for parameters when crossing from C
 
 | **Module**  *(repository)*<br/>source code folder            | Branch | OS and/or Runtime                               | Language |
 | ------------------------------------------------------------ | ------ | ----------------------------------------------- | -------- |
-| **AV-Engine** *([github.com/kwonus/AV-Engine]())*            | main   | .Net 8                                          | C#       |
-| **AV-Search** *([github.com/kwonus/AV-Search]())*            | main   | .Net 8                                          | C#       |
-| **Digital-AV** *([github.com/kwonus/Digital-AV]())*          | master | .Net 8                                          | C#       |
-| **AVX-Lib** *([github.com/kwonus/Digital-AV]())*<br/>[./omega/foundations/csharp/AVXLib](https://github.com/kwonus/Digital-AV/tree/master/omega/foundations/csharp/AVXLib) | master | .Net 8                                          | C#       |
-| **Pinshot-Blue** *([github.com/kwonus/pinshot-blue]())*<br/>[./src](https://github.com/kwonus/pinshot-blue/tree/main/src) | main   | Windows (x64)                                   | Rust     |
-| **Blueprint-Blue** *([github.com/kwonus/blueprint-blue]())*<br/>[./Blueprint-Blue-Lib](https://github.com/kwonus/blueprint-blue/tree/main/Blueprint-Blue-Lib) | main   | .Net 8                                          | C#       |
-| **NUPhone** *([github.com/kwonus/NUPhone]())*<br/>[./PhonemeEmbeddings](https://github.com/kwonus/NUPhone) | main   | .Net 8                                          | C#       |
-| **AV-Bible** *(https://github.com/kwonus/AV-Bible)*          | main   | Windows (x64)  / .Net 8 / WPF                   | C#       |
+| **AV-Engine** *([github.com/kwonus/AV-Engine](https://github.com/kwonus/AV-Engine))* | main   | .Net 8                                          | C#       |
+| **AV-Search** *([github.com/kwonus/AV-Search](https://github.com/kwonus/AV-Search))* | main   | .Net 8                                          | C#       |
+| **Digital-AV** *([github.com/kwonus/Digital-AV](https://github.com/kwonus/Digital-AV))* | master | .Net 8                                          | C#       |
+| **AVX-Lib** *([github.com/kwonus/Digital-AV](https://github.com/kwonus/Digital-AV))*<br/>[./omega/foundations/csharp/AVXLib](https://github.com/kwonus/Digital-AV/tree/master/omega/foundations/csharp/AVXLib) | master | .Net 8                                          | C#       |
+| **Pinshot-Blue** *([github.com/kwonus/pinshot-blue](https://github.com/kwonus/pinshot-blue))*<br/>[./src](https://github.com/kwonus/pinshot-blue/tree/main/src) | main   | Windows (x64)                                   | Rust     |
+| **Blueprint-Blue** *([github.com/kwonus/blueprint-blue](https://github.com/kwonus/blueprint-blue))*<br/>[./Blueprint-Blue-Lib](https://github.com/kwonus/blueprint-blue/tree/main/Blueprint-Blue-Lib) | main   | .Net 8                                          | C#       |
+| **NUPhone** *([github.com/kwonus/NUPhone](https://github.com/kwonus/NUPhone))*<br/>[./PhonemeEmbeddings](https://github.com/kwonus/NUPhone) | main   | .Net 8                                          | C#       |
+| **AV-Bible** *([github.com/kwonus/AV-Bible](https://github.com/kwonus/AV-Bible))* | main   | Windows (x64)  / .Net 8 / WPF                   | C#       |
 | **AV-Bible-Addin** *([github.com/kwonus/AV-Bible-Addin](https://github.com/kwonus/AV-Bible-Addin))*<br/>*identified in roadmap below as AV-Word* | main   | Windows (x64)  / .Net 4.x<br/>WPF / Office VSTO | C#       |
 | **AV-Data-Manager** *([github.com/kwonus/AV-Data-Manager](https://github.com/kwonus/AV-Data-Manager))*<br/>*this is a helper application for AV-Bible-Addin* | main   | Windows (x64) Native .Net 8  WPF                | C#       |
 
