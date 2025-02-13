@@ -129,7 +129,7 @@ AV-Console has been available since February 2024. This module is for testing. I
 
 **Figure 4-1**: Initial availability of AV-Console was in Q1/2024 [revision #4214; this console-app is a build-it-yourself release]
 
-AV-Bible (Windows desktop [WPF] application) is available in the Microsoft Store.  A refactored AV-Bible-2024 was released in experimental form in 2024 as an "XCOPY" installation. With minor documentation updates and an actual Windows installer, it was released as AV-Bible-2025 in January 2025.  AV-Bible includes a fully functional implementation of AVX-Framework. AV-Word also saw a limited release in 2024, but it was released also in January 2025 as "AV-Bible Addin for Microsoft Word". Its installer is bundled with the AV-Bible 2025 release. Figure 4-2, identifies the roadmap of releases, but the diagram has not been updated to with the current release names, nor the actual release dates. 
+AV-Bible (Windows desktop [WPF] application) is available in the Microsoft Store.  A refactored AV-Bible-2024 was released in experimental form in 2024 as an "XCOPY" installation. With minor documentation updates and an actual Windows installer, it was released as AV-Bible-2025 in January 2025.  AV-Bible includes a fully functional implementation of AVX-Framework. AV-Word also saw a limited release in 2024, but it was released also in January 2025 as "AV-Bible Addin for Microsoft Word". Its installer is bundled with the AV-Bible 2025 release. Figure 4-2, identifies the roadmap of releases for CY2024. 
 
 ![](AVX-Roadmap-2025.png)
 
