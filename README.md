@@ -137,7 +137,7 @@ AV-Bible (Windows desktop [WPF] application) is available in the Microsoft Store
 
 ### Implementation Status
 
-Everything else on the roadmap has already been released. 
+Everything on the roadmap has been released. 
 
 AV-Bible is in the process of being certified on the Microsoft Store. It will soon be available [here](https://apps.microsoft.com/detail/9NN9X59QTZ3J?gl=US&hl=en-us).
 
