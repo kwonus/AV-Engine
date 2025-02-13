@@ -44,7 +44,7 @@ AVX-Framework represents a radical step forward, at the same time as it reaches 
 
 There is just a single external dependency of AVX-Framework, besides .Net 8.0: YamlDotNet. Dotnet was chosen as it is open-source and it is cross-platform (I flirted with C++, but it is far too cumbersome, when compared to C#). YamlDotNet was chosen for its ability to parse/generate YAML, along with its liberal open source license. P/Invoke serves as the glue to facilitate efficient communication from C# to Rust. There are internal dependencies; those also are all open source and in-proc (maintained by AV Text Ministries; located at https://github.com/kwonus).  
 
-The framework is highly modular. Earlier works were much more monolithic and not well isolated from the GUI. While monolithic applications can be built faster, they are more fragile, difficult to refactor, and exhibit maintenance issues over the long haul. While a modular architecture is more labor-intensive initially, it's way easier to refactor. Modularity facilitates incremental improvements that most deltas can be accomplished in shorter timeframes.  Additionally, each module can and usually does have dedicated documentation. To sum it up: it takes longer on the onset, but it's way better over time. The downside of modularity is a more complicated build sequence. However, most of my user-base is constrained to the AV-Bible application (that application will be pre-built and distributed as binaries on the Microsoft App Store. If you need help building sources, please ping me). One additional benefit of modularity that I discovered is its self-documenting nature (If there is a problem found in the Blueprint-Blue sources, I know that the code has to do with model/blueprint generation; Likewise, a problem found in AV-Search sources has to do with the implementation of the search; By contrast, monolithic repos lack this clarity)
+The framework is highly modular. Earlier works were much more monolithic and not well isolated from the GUI. While monolithic applications can be built faster, they are more fragile, difficult to refactor, and exhibit maintenance issues over the long haul. While a modular architecture is more labor-intensive initially, it's way easier to refactor. Modularity facilitates incremental improvements that most deltas can be accomplished in shorter timeframes.  Additionally, each module can and usually does have dedicated documentation. To sum it up: it takes longer on the onset, but it's way better over time. The downside of modularity is a more complicated build sequence. However, most of my user-base is constrained to the AV-Bible application (that application will be pre-built and distributed as binaries on the Microsoft Store. If you need help building sources, please ping me). One additional benefit of modularity that I discovered is its self-documenting nature (If there is a problem found in the Blueprint-Blue sources, I know that the code has to do with model/blueprint generation; Likewise, a problem found in AV-Search sources has to do with the implementation of the search; By contrast, monolithic repos lack this clarity)
 
 Incidentally, a modular architecture is much like a micro-service architecture, but rather than REST endpoints, invocations are made in-process. These in-proc invocations obviate the need for sophisticated plumbing and eliminate most serialization and deserialization. In-proc is also more performant than REST or even RPC. All said, a modular architecture with in-proc invocations, atop .Net 8, is a solid foundation. It has many advantages, not the least of which is rapid development and easy debugging.
 
@@ -58,18 +58,30 @@ Evidenced by Figure 1, serialization is used for parameters when crossing from C
 
 | **Module**  *(repository)*<br/>source code folder            | Branch | OS and/or Runtime                               | Language |
 | ------------------------------------------------------------ | ------ | ----------------------------------------------- | -------- |
-| **AV-Engine** *([github.com/kwonus/AV-Engine](https://github.com/kwonus/AV-Engine))* | main   | .Net 8                                          | C#       |
-| **AV-Search** *([github.com/kwonus/AV-Search](https://github.com/kwonus/AV-Search))* | main   | .Net 8                                          | C#       |
 | **Digital-AV** *([github.com/kwonus/Digital-AV](https://github.com/kwonus/Digital-AV))* | master | .Net 8                                          | C#       |
 | **AVX-Lib** *([github.com/kwonus/Digital-AV](https://github.com/kwonus/Digital-AV))*<br/>[./omega/foundations/csharp/AVXLib](https://github.com/kwonus/Digital-AV/tree/master/omega/foundations/csharp/AVXLib) | master | .Net 8                                          | C#       |
+| **NUPhone** *([github.com/kwonus/NUPhone](https://github.com/kwonus/NUPhone))*<br/>[./PhonemeEmbeddings](https://github.com/kwonus/NUPhone) | main   | .Net 8                                          | C#       |
 | **Pinshot-Blue** *([github.com/kwonus/pinshot-blue](https://github.com/kwonus/pinshot-blue))*<br/>[./src](https://github.com/kwonus/pinshot-blue/tree/main/src) | main   | Windows (x64)                                   | Rust     |
 | **Blueprint-Blue** *([github.com/kwonus/blueprint-blue](https://github.com/kwonus/blueprint-blue))*<br/>[./Blueprint-Blue-Lib](https://github.com/kwonus/blueprint-blue/tree/main/Blueprint-Blue-Lib) | main   | .Net 8                                          | C#       |
-| **NUPhone** *([github.com/kwonus/NUPhone](https://github.com/kwonus/NUPhone))*<br/>[./PhonemeEmbeddings](https://github.com/kwonus/NUPhone) | main   | .Net 8                                          | C#       |
+| **AV-Search** *([github.com/kwonus/AV-Search](https://github.com/kwonus/AV-Search))* | main   | .Net 8                                          | C#       |
+| **AV-Engine** *([github.com/kwonus/AV-Engine](https://github.com/kwonus/AV-Engine))* | main   | .Net 8                                          | C#       |
 | **AV-Bible** *([github.com/kwonus/AV-Bible](https://github.com/kwonus/AV-Bible))* | main   | Windows (x64)  / .Net 8 / WPF                   | C#       |
 | **AV-Bible-Addin** *([github.com/kwonus/AV-Bible-Addin](https://github.com/kwonus/AV-Bible-Addin))*<br/>*identified in roadmap below as AV-Word* | main   | Windows (x64)  / .Net 4.x<br/>WPF / Office VSTO | C#       |
 | **AV-Data-Manager** *([github.com/kwonus/AV-Data-Manager](https://github.com/kwonus/AV-Data-Manager))*<br/>*this is a helper application for AV-Bible-Addin* | main   | Windows (x64) Native .Net 8  WPF                | C#       |
 
 **Figure 2**: AVX-Framework input and output definition and repository details [rev #4C23]
+
+
+
+### Digital-AV SDK and AVX-Lib Internals
+
+AVX-Lib simplifies access to the [Digital-AV SDK](https://github.com/kwonus/Digital-AV/blob/master/omega/Digital-AV-%CE%A951.pdf). The SDK provides NLP and linguistic features of the King James Bible. To be clear, the Digital-AV is what makes searches and rendering in the AVX-Framework, both feasible and fast. AVX-Lib is compiled with Dotnet 8.  AVX-Lib leverages the latest "Omega" release of Digital-AV. The Omega release exposes the entire SDK in a single binary file that includes a built-in index/directory (the earlier "Z-Series" release of Digital-AV was far more cumbersome. There were numerous files and a lot more provisioning steps that were placed upon the consumer of the SDK). In short, AVX-Lib is a component of the Digital-AV SDK, and is designed specifically to simplify its use. To be clear, when we say "consumer", there is no implied cost. All components of the AVX Framework are as free as the gospel.
+
+### NUPhone Internals
+
+[NUPhone](https://github.com/kwonus/NUPhone) is an MIT-licensed open source library. Its reference implementation, used here, is an in-process .NET 8 assembly. It emerged while Kevin was pursuing a masters in Computational Linguistics from the University of Washington (UW). In his coursework, he implemented a cross-lingual approximate string-matching algorithm between French text and English text. He called his comparison logic, "the heads & tails algorithm". It prioritized matching with a bias toward either the beginning string segment, or ending string segment. A close match guided the next comparison by aligning and prioritizing subsequent comparison logic. This approximate match logic allowed for slightly-differing Roman orthographies.
+
+NUPhone formalizes that algorithm and simultaneously embraces uncertainty in its formalism. NUPhone is part acronym and part blend, It stands for "<u>N</u>ormalized-<u>U</u>ncertainty <u>Phone</u>me" representation. Like the heads & tails algorithm, NUPhone incorporates an abbreviated phonetic inventory. Yet, the NUPhone representation utilizes only 8-bits per phoneme. In general, that is more compact than ASCII, because many English phonemes are represented by more than a single character. Cooler still, those 8-bits represent a tiny coordinate system. Using this manner of representation, sound similarity can be efficiently calculated with Manhattan-Distance. Things couldn't be more intuitive. Phoneme embeddings in only 8-bits, coverage of the full phonetic inventory for English, and the efficiency of fuzzy-comparisons without the overhead of floating-point arithmetic!
 
 ### Pinshot-Blue Internals
 
@@ -103,9 +115,7 @@ Figure 3-3 reveals the entire QueryResult hierarchy. The purple objects offer bo
 
 **Figure 3-3**: QueryBook exposes summary information <u>and</u> hierarchical details for rendering & highlighting [rev #4106]
 
-### AVX-Lib Internals
 
-AVX-Lib simplifies access to the [Digital-AV SDK](https://github.com/kwonus/Digital-AV/blob/master/omega/Digital-AV-%CE%A951.pdf). The SDK provides NLP and linguistic features of the King James Bible. To be clear, the Digital-AV is what makes searches and rendering in the AVX-Framework, both feasible and fast. AVX-Lib is compiled with Dotnet 8.  AVX-Lib leverages the latest "Omega" release of Digital-AV. The Omega release exposes the entire SDK in a single binary file that includes a built-in index/directory (the earlier "Z-Series" release of Digital-AV was far more cumbersome. There were numerous files and a lot more provisioning steps that were placed upon the consumer of the SDK). In short, AVX-Lib is a component of the Digital-AV SDK, and is designed specifically to simplify its use. To be clear, when we say "consumer", there is no implied cost. All components of the AVX Framework are as free as the gospel.
 
 ### AV-Engine Internals
 
@@ -119,21 +129,24 @@ AV-Console has been available since February 2024. This module is for testing. I
 
 **Figure 4-1**: Initial availability of AV-Console was in Q1/2024 [revision #4214; this console-app is a build-it-yourself release]
 
-AV-Bible (Windows desktop [WPF] application) will eventually be available in the Microsoft Store.  A refactored AV-Bible-2024 was released in experimental form in 2024 as an "XCOPY" installation. With minor documentation updates and an actual Windows installer, it is expected to be released as AV-Bible-2025 in Q1/2025.  AV-Bible includes a fully functional implementation of AVX-Framework. AV-Word also saw a limited release in 2024, but it was released as "AV-Bible-Addin for Microsoft Word". Its installer will be bundled with the AV-Bible-2025 release. Figure 4-2, identifies the preliminary roadmap of releases, but the digram has not been fully updated to the updated release names.
+AV-Bible (Windows desktop [WPF] application) is available in the Microsoft Store.  A refactored AV-Bible-2024 was released in experimental form in 2024 as an "XCOPY" installation. With minor documentation updates and an actual Windows installer, it was released as AV-Bible-2025 in January 2025.  AV-Bible includes a fully functional implementation of AVX-Framework. AV-Word also saw a limited release in 2024, but it was released also in January 2025 as "AV-Bible Addin for Microsoft Word". Its installer is bundled with the AV-Bible 2025 release. Figure 4-2, identifies the roadmap of releases, but the diagram has not been updated to with the current release names, nor the actual release dates. 
 
-![](AVX-Roadmap-2024.png)
+![](AVX-Roadmap-2025.png)
 
-**Figure 4-2**: Deployment Roadmap for AV-Bible and related artifacts in CY2024 and CY2025 [revision #4616]
+**Figure 4-2**: Deployment Roadmap for AV-Bible and related artifacts in CY2024 [revision #5211]
 
 ### Implementation Status
 
-All blue boxes are DLL libraries and AV-Bible-2024 (the Green box), were released first. Shortly following that, the AV-Bible-Addin for Microsoft Word entered into a limited release (the two dark-gray boxes work together to provide search and reference capability directly inside of Microsoft Word. These two executables work in tandem to provide this functionality).  AV-Bible-Web is not expected to be released until late 2025.
+Everything else on the roadmap has already been released. 
+
+AV-Bible is in the process of being certified on the Microsoft Store. It will soon be available [here](https://apps.microsoft.com/detail/9NN9X59QTZ3J?gl=US&hl=en-us).
 
 All source-code can be found at https://github.com/kwonus. 
 
-The author has an earlier AV-Bible application that is [available](https://apps.microsoft.com/detail/9NN9X59QTZ3J?gl=US&hl=en-us) in the Microsoft Store. However, that app was experimental and is far inferior to the latest release. The latest releases utilize AVX-Framework. With this new framework, AV-Bible exposes dozens of new features and capabilities.
+The roadmap is due for a refresh in 2025. Potential roadmap elements for 2025 and 2026 include:
 
-While not identified on the roadmap in Figure 4-2, a of Digital-AV late in 2024 is expected to add NUPhone pronunciations for the Elizabethan-English lexicon. Currently, only NUPhone pronunciations exist for the Modern-English lexicon.
+- experimentation with AI and possibly Azure
+- NUPhone pronunciations for the Elizabethan-English lexicon. Currently, pronunciations exist only for Modern-English lexicon.
 
 ### Final Thoughts
 
