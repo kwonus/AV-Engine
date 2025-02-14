@@ -97,19 +97,14 @@
                     }
                 }
             }
+            string dir = QContext.GetMicrosoftStoreFolder(collection);
+            if (System.IO.Directory.Exists(dir))
             {
-                // Microsoft Store App location of package data
-                //
-                string appdata = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
-                string candidate = Path.Combine(appdata, "Packages", "51374Digital-AV.org.AV-Bible", collection);
-                if (System.IO.Directory.Exists(candidate))
-                {
-                    if (file == null)
-                        return candidate;
-                    candidate = Path.Combine(collection, file);
-                    if (System.IO.File.Exists(candidate))
-                        return candidate;
-                }
+                if (file == null)
+                    return dir;
+                string item = Path.Combine(collection, file);
+                if (System.IO.File.Exists(item))
+                    return item;
             }
             return String.Empty;
         }
