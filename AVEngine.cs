@@ -20,7 +20,7 @@
         private readonly Guid ClientId;
 
         // Test for folder only when file is null (otherwise, file must exist within folder)
-        private static string GetProgramDirDefault(string collection, string? file = null)
+        private static string OBSOLETE_GetProgramDirDefault(string collection, string? file = null)
         {
             var folders = new string[] { "AV-Bible", "Digital-AV", "DigitalAV" };
 
@@ -108,73 +108,10 @@
             }
             return String.Empty;
         }
-        private static string? _OmegaFile = null;
-        public static string Data
-        {
-            get
-            {
-                if (_OmegaFile != null)
-                    return _OmegaFile;
-
-                string cwd = Directory.GetCurrentDirectory();
-                for (string omega = Path.Combine(cwd, "Digital-AV", "AVX-Omega.data"); omega.Length > @"X:\Digital-AV\AVX-Omega.data".Length; omega = Path.Combine(cwd, "Digital-AV", "AVX-Omega.data"))
-                {
-                    if (System.IO.File.Exists(omega))
-                    {
-                        _OmegaFile = omega;
-                        return omega;
-                    }
-                    var parent = Directory.GetParent(cwd);
-                    if (parent == null)
-                        break;
-                    cwd = parent.FullName;
-                }
-                cwd = Directory.GetCurrentDirectory();
-                for (string omega = Path.Combine(cwd, "AV-Bible", "Digital-AV", "AVX-Omega.data"); omega.Length > @"X:\Digital-AV\AVX-Omega.data".Length; omega = Path.Combine(cwd, "AV-Bible", "Digital-AV", "AVX-Omega.data"))
-                {
-                    if (System.IO.File.Exists(omega))
-                    {
-                        _OmegaFile = omega;
-                        return omega;
-                    }
-                    var parent = Directory.GetParent(cwd);
-                    if (parent == null)
-                        break;
-                    cwd = parent.FullName;
-                }
-                cwd = Directory.GetCurrentDirectory();
-                for (string omega = Path.Combine(cwd, "AVBible", "Digital-AV", "AVX-Omega.data"); omega.Length > @"X:\Digital-AV\AVX-Omega.data".Length; omega = Path.Combine(cwd, "AVBible", "Digital-AV", "AVX-Omega.data"))
-                {
-                    if (System.IO.File.Exists(omega))
-                    {
-                        _OmegaFile = omega;
-                        return omega;
-                    }
-                    var parent = Directory.GetParent(cwd);
-                    if (parent == null)
-                        break;
-                    cwd = parent.FullName;
-                }
-                cwd = Directory.GetCurrentDirectory();
-                for (string omega = Path.Combine(cwd, "AVX-Omega.data"); omega.Length > @"X:\AVX-Omega.data".Length; omega = Path.Combine(cwd, "AVX-Omega.data"))
-                {
-                    if (System.IO.File.Exists(omega))
-                    {
-                        _OmegaFile = omega;
-                        return omega;
-                    }
-                    var parent = Directory.GetParent(cwd);
-                    if (parent == null)
-                        break;
-                    cwd = parent.FullName;
-                }
-                _OmegaFile = GetProgramDirDefault("Digital-AV", "AVX-Omega.data");
-                return _OmegaFile;
-            }
-        }
         public static readonly char[] splitters = ['_', '&', '+', ' ', '@'];
+#if OBSOLETE_FILE_BASED_HELP
         private static string? _HelpFolder = null;
-        public static string GetHelpFile(string request, bool asFlowDoc = false)
+        private static string GetHelpFile(string request, bool asFlowDoc = false)
         {
             string[] topics = request.Split(splitters, StringSplitOptions.RemoveEmptyEntries);
 
@@ -258,6 +195,7 @@
                 return _HelpFolder;
             }
         }
+#endif
 
 #if USE_NATIVE_LIBRARIES
         private NativeStatement SearchEngine;
@@ -790,15 +728,15 @@
         public static AVEngine? SELF { get; private set; } = null;
         public AVEngine()
         {
-            ObjectTable.SDK = AVEngine.Data;
             this.QuelleParser = new();
             this.ClientId = Guid.NewGuid();
 
 #if USE_NATIVE_LIBRARIES
+            ObjectTable.SDK = AVEngine.Data;
             this.SearchEngine = new NativeStatement(SDK);
 #else
             this.SearchEngine = new();
-#endif        
+#endif
             AVEngine.SELF = this;
         }
     public void Release()
