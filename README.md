@@ -139,14 +139,9 @@ AV-Bible (Windows desktop [WPF] application) is available in the Microsoft Store
 
 Everything on the roadmap has been released. 
 
-AV-Bible is in the process of being certified on the Microsoft Store. It will soon be available [here](https://apps.microsoft.com/detail/9NN9X59QTZ3J?gl=US&hl=en-us).
+AV-Bible is in the Microsoft Store. It is available [here](https://apps.microsoft.com/detail/9N83W16BTMTK).
 
 All source-code can be found at https://github.com/kwonus. 
-
-The roadmap is due for a refresh in 2025. Potential roadmap elements for 2025 and 2026 include:
-
-- experimentation with AI and possibly Azure
-- NUPhone pronunciations for the Elizabethan-English lexicon. Currently, pronunciations exist only for Modern-English lexicon.
 
 ### Final Thoughts
 
